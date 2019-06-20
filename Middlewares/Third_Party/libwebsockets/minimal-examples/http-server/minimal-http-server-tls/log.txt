@@ -1,0 +1,434 @@
+[2019/05/15 10:49:24:5529] USER: LWS minimal http server TLS | visit https://localhost:7681
+[2019/05/15 10:49:24:5529] INFO: Initial logging level 1055
+[2019/05/15 10:49:24:5529] INFO: Libwebsockets version: 3.1.99 v3.1.0-153-gf89aa401
+[2019/05/15 10:49:24:5529] INFO: IPV6 not compiled in
+[2019/05/15 10:49:24:5529] INFO:  LWS_DEF_HEADER_LEN    : 4096
+[2019/05/15 10:49:24:5529] INFO:  LWS_MAX_PROTOCOLS     : 5
+[2019/05/15 10:49:24:5529] INFO:  LWS_MAX_SMP           : 1
+[2019/05/15 10:49:24:5529] INFO:  sizeof (*info)        : 368
+[2019/05/15 10:49:24:5529] INFO:  SYSTEM_RANDOM_FILEPATH: '/dev/urandom'
+[2019/05/15 10:49:24:5529] INFO:  HTTP2 support         : available
+[2019/05/15 10:49:24:5539] DEBUG: _realloc: size 888: context
+[2019/05/15 10:49:24:5539] INFO: context created
+[2019/05/15 10:49:24:5539] INFO: Using event loop: poll
+[2019/05/15 10:49:24:5539] INFO: Default ALPN advertisment: h2,http/1.1
+[2019/05/15 10:49:24:5539] INFO:  default timeout (secs): 20
+[2019/05/15 10:49:24:5539] DEBUG: _realloc: size 4096: pt_serv_buf
+[2019/05/15 10:49:24:5549] INFO:  Threads: 1 each 30000 fds
+[2019/05/15 10:49:24:5549] INFO:  mem: context:          4984 B (888 ctx + (1 thr x 4096))
+[2019/05/15 10:49:24:5549] INFO:  mem: http hdr rsvd:   150720000 B (1 thr x (4096 + 928) x 30000))
+[2019/05/15 10:49:24:5549] DEBUG: _realloc: size 240000: fds table
+[2019/05/15 10:49:24:5549] INFO:  mem: pollfd map:      240000
+[2019/05/15 10:49:24:5549] DEBUG: _realloc: size 120000: win hashtable
+[2019/05/15 10:49:24:5549] DEBUG: _realloc: size 120000: win hashtable
+[2019/05/15 10:49:24:5549] DEBUG: _realloc: size 120000: win hashtable
+[2019/05/15 10:49:24:5549] DEBUG: _realloc: size 120000: win hashtable
+[2019/05/15 10:49:24:5549] DEBUG: _realloc: size 120000: win hashtable
+[2019/05/15 10:49:24:5549] DEBUG: _realloc: size 120000: win hashtable
+[2019/05/15 10:49:24:5549] DEBUG: _realloc: size 120000: win hashtable
+[2019/05/15 10:49:24:5549] DEBUG: _realloc: size 120000: win hashtable
+[2019/05/15 10:49:24:5549] DEBUG: _realloc: size 120000: win hashtable
+[2019/05/15 10:49:24:5549] DEBUG: _realloc: size 120000: win hashtable
+[2019/05/15 10:49:24:5549] DEBUG: _realloc: size 120000: win hashtable
+[2019/05/15 10:49:24:5549] DEBUG: _realloc: size 120000: win hashtable
+[2019/05/15 10:49:24:5549] DEBUG: _realloc: size 120000: win hashtable
+[2019/05/15 10:49:24:5559] DEBUG: _realloc: size 120000: win hashtable
+[2019/05/15 10:49:24:5559] DEBUG: _realloc: size 120000: win hashtable
+[2019/05/15 10:49:24:5559] DEBUG: _realloc: size 120000: win hashtable
+[2019/05/15 10:49:24:5559] DEBUG: _realloc: size 120000: win hashtable
+[2019/05/15 10:49:24:5559] DEBUG: _realloc: size 120000: win hashtable
+[2019/05/15 10:49:24:5559] DEBUG: _realloc: size 120000: win hashtable
+[2019/05/15 10:49:24:5559] DEBUG: _realloc: size 120000: win hashtable
+[2019/05/15 10:49:24:5559] DEBUG: _realloc: size 120000: win hashtable
+[2019/05/15 10:49:24:5559] DEBUG: _realloc: size 120000: win hashtable
+[2019/05/15 10:49:24:5559] DEBUG: _realloc: size 120000: win hashtable
+[2019/05/15 10:49:24:5559] DEBUG: _realloc: size 120000: win hashtable
+[2019/05/15 10:49:24:5559] DEBUG: _realloc: size 120000: win hashtable
+[2019/05/15 10:49:24:5559] DEBUG: _realloc: size 120000: win hashtable
+[2019/05/15 10:49:24:5559] DEBUG: _realloc: size 120000: win hashtable
+[2019/05/15 10:49:24:5559] DEBUG: _realloc: size 120000: win hashtable
+[2019/05/15 10:49:24:5569] DEBUG: _realloc: size 120000: win hashtable
+[2019/05/15 10:49:24:5569] DEBUG: _realloc: size 120000: win hashtable
+[2019/05/15 10:49:24:5569] DEBUG: _realloc: size 120000: win hashtable
+[2019/05/15 10:49:24:5569] DEBUG: _realloc: size 120000: win hashtable
+[2019/05/15 10:49:24:5569] DEBUG: _realloc: size 352: event pipe wsi
+[2019/05/15 10:49:24:5569] DEBUG: lws_role_transition: 0074A348: wsistate 0x200, ops pipe
+[2019/05/15 10:49:24:5569] INFO:  Compiled with MbedTLS support
+[2019/05/15 10:49:24:5569] DEBUG: _realloc: size 424: create vhost
+[2019/05/15 10:49:24:5569] DEBUG: _realloc: size 39: vh paths
+[2019/05/15 10:49:24:5569] DEBUG: _realloc: size 84: vhost-specific plugin table
+[2019/05/15 10:49:24:5569] DEBUG: _realloc: size 16: same vh list
+[2019/05/15 10:49:24:5569] INFO: Creating Vhost 'default' port 7681, 2 protocols, IPv6 off
+[2019/05/15 10:49:24:5569] INFO:    mounting file://./mount-origin to /
+[2019/05/15 10:49:24:5569] NOTICE:  Using SSL mode
+[2019/05/15 10:49:24:5569] NOTICE: lws_tls_server_vhost_backend_init: vh default: mem CA OK
+[2019/05/15 10:49:24:5579] DEBUG: _realloc: size 2140: alloc_file
+[2019/05/15 10:49:24:6009] DEBUG: _realloc: size 3324: alloc_file
+[2019/05/15 10:49:24:6119] NOTICE: no client cert required
+[2019/05/15 10:49:24:6119] INFO:  Server 'default' advertising ALPN: h2,http/1.1
+[2019/05/15 10:49:24:6169] DEBUG: _realloc: size 352: listen wsi
+[2019/05/15 10:49:24:6169] DEBUG: _lws_vhost_init_server: lws_socket_bind says 7681
+[2019/05/15 10:49:24:6169] DEBUG: lws_role_transition: 01325738: wsistate 0x200, ops listen
+[2019/05/15 10:49:24:6169] INFO: lws_vhost_bind_wsi: vh default: count_bound_wsi 1
+[2019/05/15 10:49:24:6169] DEBUG: __insert_wsi_socket_into_fds: 01325738: tsi=0, sock=180, pos-in-fds=0
+[2019/05/15 10:49:24:6169] INFO:  Listening on port 7681
+[2019/05/15 10:49:24:6169] INFO:  mem: per-conn:          352 bytes + protocol rx buf
+[2019/05/15 10:49:24:6269] INFO:  canonical_hostname = MTL2417
+[2019/05/15 10:49:24:6269] INFO: lws_cancel_service
+[2019/05/15 10:49:24:6279] INFO: lws_protocol_init
+[2019/05/15 10:49:24:6279] DEBUG: _realloc: size 8: protocol_vh_privs
+[2019/05/15 10:49:24:6279] DEBUG: _realloc: size 12: vh priv
+[2019/05/15 10:49:24:6279] DEBUG: _realloc: size 32: timed_vh
+[2019/05/15 10:49:24:6279] NOTICE:    vhost default: cert expiry: 36077d
+[2019/05/15 10:49:25:6280] DEBUG: _realloc: size 352: cbwsi
+[2019/05/15 10:49:25:6280] DEBUG: _realloc: size 32: cbtmr
+[2019/05/15 10:49:25:6280] DEBUG: lws_service_periodic_checks: timed cb: vh default, protocol lws-abs-cli-raw-skt, reason 1000
+[2019/05/15 10:49:25:6280] DEBUG: _realloc: size 32: timed_vh
+[2019/05/15 10:49:26:6281] DEBUG: _realloc: size 352: cbwsi
+[2019/05/15 10:49:26:6281] DEBUG: _realloc: size 32: cbtmr
+[2019/05/15 10:49:26:6281] DEBUG: lws_service_periodic_checks: timed cb: vh default, protocol lws-abs-cli-raw-skt, reason 1000
+[2019/05/15 10:49:26:6281] DEBUG: _realloc: size 32: timed_vh
+[2019/05/15 10:49:27:6282] DEBUG: _realloc: size 352: cbwsi
+[2019/05/15 10:49:27:6282] DEBUG: _realloc: size 32: cbtmr
+[2019/05/15 10:49:27:6282] DEBUG: lws_service_periodic_checks: timed cb: vh default, protocol lws-abs-cli-raw-skt, reason 1000
+[2019/05/15 10:49:27:6282] DEBUG: _realloc: size 32: timed_vh
+[2019/05/15 10:49:28:6283] DEBUG: _realloc: size 352: cbwsi
+[2019/05/15 10:49:28:6283] DEBUG: _realloc: size 32: cbtmr
+[2019/05/15 10:49:28:6283] DEBUG: lws_service_periodic_checks: timed cb: vh default, protocol lws-abs-cli-raw-skt, reason 1000
+[2019/05/15 10:49:28:6283] DEBUG: _realloc: size 32: timed_vh
+[2019/05/15 10:49:29:6284] DEBUG: _realloc: size 352: cbwsi
+[2019/05/15 10:49:29:6284] DEBUG: _realloc: size 32: cbtmr
+[2019/05/15 10:49:29:6284] DEBUG: lws_service_periodic_checks: timed cb: vh default, protocol lws-abs-cli-raw-skt, reason 1000
+[2019/05/15 10:49:29:6284] DEBUG: _realloc: size 32: timed_vh
+[2019/05/15 10:49:30:6285] DEBUG: _realloc: size 352: cbwsi
+[2019/05/15 10:49:30:6285] DEBUG: _realloc: size 32: cbtmr
+[2019/05/15 10:49:30:6285] DEBUG: lws_service_periodic_checks: timed cb: vh default, protocol lws-abs-cli-raw-skt, reason 1000
+[2019/05/15 10:49:30:6285] DEBUG: _realloc: size 32: timed_vh
+[2019/05/15 10:49:31:6286] DEBUG: _realloc: size 352: cbwsi
+[2019/05/15 10:49:31:6286] DEBUG: _realloc: size 32: cbtmr
+[2019/05/15 10:49:31:6286] DEBUG: lws_service_periodic_checks: timed cb: vh default, protocol lws-abs-cli-raw-skt, reason 1000
+[2019/05/15 10:49:31:6286] DEBUG: _realloc: size 32: timed_vh
+[2019/05/15 10:49:32:6287] DEBUG: _realloc: size 352: cbwsi
+[2019/05/15 10:49:32:6287] DEBUG: _realloc: size 32: cbtmr
+[2019/05/15 10:49:32:6287] DEBUG: lws_service_periodic_checks: timed cb: vh default, protocol lws-abs-cli-raw-skt, reason 1000
+[2019/05/15 10:49:32:6287] DEBUG: _realloc: size 32: timed_vh
+[2019/05/15 10:49:33:5098] DEBUG: accepted new conn port 62666 on fd=428
+[2019/05/15 10:49:33:5098] DEBUG: _realloc: size 352: new server wsi
+[2019/05/15 10:49:33:5098] DEBUG: new wsi 01283F48 joining vhost default, tsi 0
+[2019/05/15 10:49:33:5098] INFO: lws_vhost_bind_wsi: vh default: count_bound_wsi 2
+[2019/05/15 10:49:33:5098] DEBUG: lwsi_set_state(01283F48, 0x20000200)
+[2019/05/15 10:49:33:5098] DEBUG: lws_role_transition: 01283F48: wsistate 0x20000207, ops h1
+[2019/05/15 10:49:33:5098] DEBUG: __lws_set_timeout: 01283F48: 20 secs (reason 3)
+[2019/05/15 10:49:33:5148] DEBUG: lwsi_set_state(01283F48, 0x20000208)
+[2019/05/15 10:49:33:5148] DEBUG: __insert_wsi_socket_into_fds: 01283F48: tsi=0, sock=428, pos-in-fds=1
+[2019/05/15 10:49:33:5148] DEBUG: __lws_set_timeout: 01283F48: 20 secs (reason 9)
+[2019/05/15 10:49:33:5158] DEBUG: inserted SSL accept into fds, trying SSL_accept
+[2019/05/15 10:49:33:5158] DEBUG: _lws_change_pollfd: wsi 01283F48: fd 428 events 9 -> 9
+[2019/05/15 10:49:33:5158] INFO: mbedtls_handshake: ssl ret -0 state 1
+[2019/05/15 10:49:33:5158] INFO: mbedtls_handshake: ssl ret -6900 state 1
+[2019/05/15 10:49:33:5158] DEBUG: lws_tls_server_accept: 01283F48: accept SSL_get_error 5 errno 0
+[2019/05/15 10:49:33:5158] INFO: SSL_accept says -2
+[2019/05/15 10:49:33:5158] INFO: lws_header_table_attach: wsi 01283F48: ah 00000000 (tsi 0, count = 0) in
+[2019/05/15 10:49:33:5158] DEBUG: _realloc: size 928: ah struct
+[2019/05/15 10:49:33:5158] DEBUG: _realloc: size 4096: ah data
+[2019/05/15 10:49:33:5158] INFO: _lws_create_ah: created ah 0128DD68 (size 4096): pool length 1
+[2019/05/15 10:49:33:5158] DEBUG: _lws_change_pollfd: wsi 01283F48: fd 428 events 9 -> 9
+[2019/05/15 10:49:33:5158] INFO: lws_header_table_attach: did attach wsi 01283F48: ah 0128DD68: count 1 (on exit)
+[2019/05/15 10:49:33:5158] DEBUG: __lws_set_timeout: 01283F48: 10 secs (reason 25)
+[2019/05/15 10:49:33:5158] DEBUG: Attached ah immediately
+lws_poll_listen_fd: 180
+[2019/05/15 10:49:33:5158] DEBUG: _realloc: size 352: cbwsi
+[2019/05/15 10:49:33:5158] DEBUG: _realloc: size 32: cbtmr
+[2019/05/15 10:49:33:5158] DEBUG: lws_service_periodic_checks: timed cb: vh default, protocol lws-abs-cli-raw-skt, reason 1000
+[2019/05/15 10:49:33:5158] DEBUG: _realloc: size 32: timed_vh
+[2019/05/15 10:49:33:5158] DEBUG: rops_handle_POLLIN_h1: 01283F48: wsistate 0x20000208
+[2019/05/15 10:49:33:5158] DEBUG: _lws_change_pollfd: wsi 01283F48: fd 428 events 9 -> 9
+[2019/05/15 10:49:33:5158] DEBUG: _lws_change_pollfd: wsi 01283F48: fd 428 events 9 -> 9
+[2019/05/15 10:49:33:5158] INFO: mbedtls_handshake: ssl ret -6900 state 1
+[2019/05/15 10:49:33:5158] DEBUG: lws_tls_server_accept: 01283F48: accept SSL_get_error 5 errno 0
+[2019/05/15 10:49:33:5158] INFO: SSL_accept says -2
+[2019/05/15 10:49:33:5208] DEBUG: rops_handle_POLLIN_h1: 01283F48: wsistate 0x20000208
+[2019/05/15 10:49:33:5208] DEBUG: _lws_change_pollfd: wsi 01283F48: fd 428 events 9 -> 9
+[2019/05/15 10:49:33:5218] NOTICE: lws_mbedtls_sni_cb: localhost
+[2019/05/15 10:49:33:5218] INFO: lws_select_vhost: vhost match to default based on port 7681
+[2019/05/15 10:49:33:5218] INFO: SNI: Found: localhost:7681 at vhost 'default'
+[2019/05/15 10:49:33:5218] INFO: mbedtls_handshake: ssl ret -0 state 2
+[2019/05/15 10:49:33:5218] INFO: mbedtls_handshake: ssl ret -0 state 3
+[2019/05/15 10:49:33:5218] INFO: mbedtls_handshake: ssl ret -0 state 4
+[2019/05/15 10:49:33:6749] INFO: mbedtls_handshake: ssl ret -0 state 5
+[2019/05/15 10:49:33:6749] INFO: mbedtls_handshake: ssl ret -0 state 6
+[2019/05/15 10:49:33:6759] INFO: mbedtls_handshake: ssl ret -0 state 7
+[2019/05/15 10:49:33:6759] INFO: mbedtls_handshake: ssl ret -0 state 8
+[2019/05/15 10:49:33:6759] INFO: mbedtls_handshake: ssl ret -6900 state 8
+[2019/05/15 10:49:33:6759] DEBUG: lws_tls_server_accept: 01283F48: accept SSL_get_error 5 errno 0
+[2019/05/15 10:49:33:6759] INFO: SSL_accept says -2
+[2019/05/15 10:49:33:6759] DEBUG: rops_handle_POLLIN_h1: 01283F48: wsistate 0x20000208
+[2019/05/15 10:49:33:6759] DEBUG: _lws_change_pollfd: wsi 01283F48: fd 428 events 9 -> 9
+[2019/05/15 10:49:33:6759] DEBUG: _lws_change_pollfd: wsi 01283F48: fd 428 events 9 -> 9
+[2019/05/15 10:49:33:6759] INFO: mbedtls_handshake: ssl ret -6900 state 8
+[2019/05/15 10:49:33:6759] DEBUG: lws_tls_server_accept: 01283F48: accept SSL_get_error 5 errno 0
+[2019/05/15 10:49:33:6759] INFO: SSL_accept says -2
+[2019/05/15 10:49:33:6919] DEBUG: rops_handle_POLLIN_h1: 01283F48: wsistate 0x20000208
+[2019/05/15 10:49:33:6919] DEBUG: _lws_change_pollfd: wsi 01283F48: fd 428 events 9 -> 9
+[2019/05/15 10:49:33:7069] INFO: mbedtls_handshake: ssl ret -0 state 9
+[2019/05/15 10:49:33:7069] INFO: mbedtls_handshake: ssl ret -0 state 10
+[2019/05/15 10:49:33:7069] INFO: mbedtls_handshake: ssl ret -0 state 11
+[2019/05/15 10:49:33:7069] INFO: mbedtls_handshake: ssl ret -0 state 12
+[2019/05/15 10:49:33:7069] INFO: mbedtls_handshake: ssl ret -0 state 13
+[2019/05/15 10:49:33:7069] INFO: mbedtls_handshake: ssl ret -0 state 14
+[2019/05/15 10:49:33:7069] INFO: mbedtls_handshake: ssl ret -0 state 15
+[2019/05/15 10:49:33:7069] INFO: mbedtls_handshake: ssl ret -0 state 16
+[2019/05/15 10:49:33:7069] INFO: lws_tls_server_accept: couldn't get client cert CN
+[2019/05/15 10:49:33:7069] INFO: SSL_accept says 0
+[2019/05/15 10:49:33:7069] INFO: setting wsi to vh default
+[2019/05/15 10:49:33:7069] DEBUG: __lws_set_timeout: 01283F48: 20 secs (reason 3)
+[2019/05/15 10:49:33:7069] DEBUG: lwsi_set_state(01283F48, 0x20000117)
+[2019/05/15 10:49:33:7069] INFO: negotiated 'h2' using ALPN
+[2019/05/15 10:49:33:7079] INFO: lws_role_call_alpn_negotiated: 'h2'
+[2019/05/15 10:49:33:7079] DEBUG: rops_alpn_negotiated_h2: client 0
+[2019/05/15 10:49:33:7079] DEBUG: lws_role_transition: 01283F48: wsistate 0x2000020b, ops h2
+[2019/05/15 10:49:33:7079] DEBUG: _realloc: size 196: h2n
+[2019/05/15 10:49:33:7079] INFO: lws_hpack_dynamic_size: from 0 to 65536, lim 65536
+[2019/05/15 10:49:33:7079] DEBUG: _realloc: size 98316: dynamic table entries
+[2019/05/15 10:49:33:7079] INFO: rops_alpn_negotiated_h2: wsi 01283F48: configured for h2
+[2019/05/15 10:49:33:7079] DEBUG: accepted new SSL conn
+[2019/05/15 10:49:33:7079] INFO: rops_handle_POLLIN_h2: wsistate 0x2000020b, pollout 2
+[2019/05/15 10:49:33:7519] INFO: rops_handle_POLLIN_h2: wsistate 0x2000020b, pollout 0
+[2019/05/15 10:49:33:7519] DEBUG: 01283F48: SSL_read says 24
+[2019/05/15 10:49:33:7519] INFO: http2: 01283F48: established
+[2019/05/15 10:49:33:7519] DEBUG: lwsi_set_state(01283F48, 0x2000030c)
+[2019/05/15 10:49:33:7519] DEBUG: _realloc: size 48: pps
+[2019/05/15 10:49:33:7519] INFO: mark 01283F48 pending writable
+[2019/05/15 10:49:33:7519] DEBUG: _lws_change_pollfd: wsi 01283F48: fd 428 events 9 -> 11
+[2019/05/15 10:49:33:7519] INFO: __lws_header_table_detach: wsi 01283F48: ah 0128DD68 (tsi=0, count = 1)
+[2019/05/15 10:49:33:7519] INFO: __lws_header_table_detach: nobody usable waiting
+[2019/05/15 10:49:33:7519] INFO: _lws_destroy_ah: freed ah 0128DD68 : pool length 0
+[2019/05/15 10:49:33:7519] INFO: __lws_header_table_detach: wsi 01283F48: ah 0128DD68 (tsi=0, count = 0)
+[2019/05/15 10:49:33:7519] INFO: rops_handle_POLLIN_h2: wsistate 0x2000030c, pollout 2
+[2019/05/15 10:49:33:7519] INFO: servicing pps
+[2019/05/15 10:49:33:7519] INFO: lws_h2_do_pps_send: 01283F48: 1
+[2019/05/15 10:49:33:7519] DEBUG: sending SETTING 1 0x10000
+[2019/05/15 10:49:33:7519] DEBUG: sending SETTING 3 0x18
+[2019/05/15 10:49:33:7519] DEBUG: sending SETTING 6 0x1000
+[2019/05/15 10:49:33:7519] DEBUG: sending SETTING 8 0x1
+[2019/05/15 10:49:33:7519] DEBUG: lws_h2_frame_write: 01283F48 (eff 01283F48). typ 4, fl 0x0, sid=0, len=24, txcr=65535, nwsi->txcr=65535
+[2019/05/15 10:49:33:7519] INFO: lws_issue_raw: ssl_capable_write (33) says 33
+[2019/05/15 10:49:33:7519] INFO: rops_handle_POLLIN_h2: wsistate 0x2000030c, pollout 2
+[2019/05/15 10:49:33:7519] DEBUG: _lws_change_pollfd: wsi 01283F48: fd 428 events 11 -> 9
+[2019/05/15 10:49:33:7519] INFO: pollout on uninitialized http2 conn
+[2019/05/15 10:49:33:7519] DEBUG: 01283F48: SSL_read says 27
+[2019/05/15 10:49:33:7519] DEBUG: __lws_set_timeout: 01283F48: 31 secs (reason 15)
+[2019/05/15 10:49:33:7519] DEBUG: 01283F48 (01283F48): fr hdr: typ 0x4, fla 0x0, sid 0x0, len 0x12
+[2019/05/15 10:49:33:7519] INFO: lws_h2_parse_frame_header: wsi 01283F48, State: LWS_H2S_IDLE, received cmd 4
+[2019/05/15 10:49:33:7519] INFO: LWS_H2_FRAME_TYPE_SETTINGS complete frame
+[2019/05/15 10:49:33:7519] DEBUG: _realloc: size 48: pps
+[2019/05/15 10:49:33:7519] INFO: mark 01283F48 pending writable
+[2019/05/15 10:49:33:7519] DEBUG: _lws_change_pollfd: wsi 01283F48: fd 428 events 9 -> 11
+[2019/05/15 10:49:33:7519] INFO: http2 settings 3 <- 0x64
+[2019/05/15 10:49:33:7519] INFO: http2 settings 4 <- 0x40000000
+[2019/05/15 10:49:33:7519] INFO: http2 settings 2 <- 0x0
+[2019/05/15 10:49:33:7519] INFO: initial tx credit on master 01283F48: 1073741824
+[2019/05/15 10:49:33:7519] INFO: rops_handle_POLLIN_h2: wsistate 0x2000030c, pollout 2
+[2019/05/15 10:49:33:7519] INFO: servicing pps
+[2019/05/15 10:49:33:7519] INFO: lws_h2_do_pps_send: 01283F48: 2
+[2019/05/15 10:49:33:7519] DEBUG: lws_h2_frame_write: 01283F48 (eff 01283F48). typ 4, fl 0x1, sid=0, len=0, txcr=1073741824, nwsi->txcr=1073741824
+[2019/05/15 10:49:33:7519] INFO: lws_issue_raw: ssl_capable_write (9) says 9
+[2019/05/15 10:49:33:7519] DEBUG: lwsi_set_state(01283F48, 0x20000117)
+[2019/05/15 10:49:33:7529] INFO: rops_handle_POLLIN_h2: wsistate 0x20000117, pollout 0
+[2019/05/15 10:49:33:7529] DEBUG: 01283F48: SSL_read says 13
+[2019/05/15 10:49:33:7529] DEBUG: __lws_set_timeout: 01283F48: 31 secs (reason 15)
+[2019/05/15 10:49:33:7529] DEBUG: 01283F48 (01283F48): fr hdr: typ 0x8, fla 0x0, sid 0x0, len 0x4
+[2019/05/15 10:49:33:7529] INFO: lws_h2_parse_frame_header: wsi 01283F48, State: LWS_H2S_IDLE, received cmd 8
+[2019/05/15 10:49:33:7529] INFO: LWS_H2_FRAME_TYPE_WINDOW_UPDATE
+[2019/05/15 10:49:33:7529] INFO: WINDOW_UPDATE: sid 0 1073676289 (0x3fff0001)
+[2019/05/15 10:49:33:7529] INFO: rops_handle_POLLIN_h2: wsistate 0x20000117, pollout 2
+[2019/05/15 10:49:33:7529] DEBUG: _lws_change_pollfd: wsi 01283F48: fd 428 events 11 -> 9
+[2019/05/15 10:49:33:7529] INFO: lws_h2_dump_waiting_children: 01283F48: children waiting for POLLOUT service:
+[2019/05/15 10:49:33:7529] INFO: rops_handle_POLLIN_h2: wsistate 0x20000117, pollout 2
+[2019/05/15 10:49:33:7529] DEBUG: _lws_change_pollfd: wsi 01283F48: fd 428 events 9 -> 9
+[2019/05/15 10:49:33:7529] INFO: lws_h2_dump_waiting_children: 01283F48: children waiting for POLLOUT service:
+[2019/05/15 10:49:33:7539] INFO: rops_handle_POLLIN_h2: wsistate 0x20000117, pollout 0
+[2019/05/15 10:49:33:7539] DEBUG: 01283F48: SSL_read says 39
+[2019/05/15 10:49:33:7539] DEBUG: __lws_set_timeout: 01283F48: 31 secs (reason 15)
+[2019/05/15 10:49:33:7539] DEBUG: 01283F48 (00000000): fr hdr: typ 0x1, fla 0x5, sid 0x1, len 0x1e
+[2019/05/15 10:49:33:7539] INFO: HEADERS: frame header: sid = 1
+[2019/05/15 10:49:33:7539] DEBUG: _realloc: size 352: new server wsi
+[2019/05/15 10:49:33:7539] DEBUG: new wsi 007CD6A0 joining vhost default, tsi 0
+[2019/05/15 10:49:33:7539] INFO: lws_vhost_bind_wsi: vh default: count_bound_wsi 3
+[2019/05/15 10:49:33:7539] DEBUG: lwsi_set_state(007CD6A0, 0x20000200)
+[2019/05/15 10:49:33:7539] DEBUG: lwsi_set_state(007CD6A0, 0x20000117)
+[2019/05/15 10:49:33:7539] DEBUG: lwsi_set_role(007CD6A0, 0x20000117)
+[2019/05/15 10:49:33:7539] DEBUG: lws_ensure_user_space: 007CD6A0 protocol pss 0, user_space=00000000
+[2019/05/15 10:49:33:7539] INFO: lws_wsi_server_new: 01283F48 new ch 007CD6A0, sid 1, usersp=00000000, tx cr 1073741824, peer_credit 65535 (nwsi tx_cr 2147418113)
+[2019/05/15 10:49:33:7539] DEBUG: _realloc: size 48: pps
+[2019/05/15 10:49:33:7539] INFO: mark 01283F48 pending writable
+[2019/05/15 10:49:33:7539] DEBUG: _lws_change_pollfd: wsi 01283F48: fd 428 events 9 -> 11
+[2019/05/15 10:49:33:7539] DEBUG: _realloc: size 48: pps
+[2019/05/15 10:49:33:7539] DEBUG: already pending writable
+[2019/05/15 10:49:33:7539] INFO: lws_header_table_attach: wsi 007CD6A0: ah 00000000 (tsi 0, count = 0) in
+[2019/05/15 10:49:33:7539] DEBUG: _realloc: size 928: ah struct
+[2019/05/15 10:49:33:7539] DEBUG: _realloc: size 4096: ah data
+[2019/05/15 10:49:33:7539] INFO: _lws_create_ah: created ah 007CE060 (size 4096): pool length 1
+[2019/05/15 10:49:33:7539] INFO: lws_header_table_attach: did attach wsi 007CD6A0: ah 007CE060: count 1 (on exit)
+[2019/05/15 10:49:33:7539] DEBUG: __lws_set_timeout: 007CD6A0: 10 secs (reason 25)
+[2019/05/15 10:49:33:7539] INFO: lws_h2_parse_frame_header: hdr END_STREAM = 1
+[2019/05/15 10:49:33:7539] INFO: 007CD6A0: END_HEADERS 1
+[2019/05/15 10:49:33:7539] DEBUG: END_HEADERS 1
+[2019/05/15 10:49:33:7539] DEBUG: _realloc: size 15: hpack dyn
+[2019/05/15 10:49:33:7539] INFO: lws_dynamic_token_insert: index 62: lws_hdr_index 0x23, hdr len 10, 'localhost:7681' len 14
+[2019/05/15 10:49:33:7539] DEBUG: _realloc: size 12: hpack dyn
+[2019/05/15 10:49:33:7539] INFO: lws_dynamic_token_insert: index 62: lws_hdr_index 0x45, hdr len 10, 'curl/7.64.1' len 11
+[2019/05/15 10:49:33:7539] DEBUG: _realloc: size 4: hpack dyn
+[2019/05/15 10:49:33:7539] INFO: lws_dynamic_token_insert: index 62: lws_hdr_index 0x11, hdr len 6, '*/*' len 3
+[2019/05/15 10:49:33:7539] INFO: lws_h2_state: wsi 007CD6A0: state LWS_H2S_IDLE -> LWS_H2S_OPEN
+[2019/05/15 10:49:33:7539] INFO: http req, wsi=01283F48, h2n->swsi=007CD6A0
+[2019/05/15 10:49:33:7539] INFO:     accept: = */*
+[2019/05/15 10:49:33:7539] INFO:     :authority = localhost:7681
+[2019/05/15 10:49:33:7539] INFO:     :method = GET
+[2019/05/15 10:49:33:7539] INFO:     :path = /index.html
+[2019/05/15 10:49:33:7539] INFO:     :scheme = https
+[2019/05/15 10:49:33:7539] INFO:     user-agent: = curl/7.64.1
+[2019/05/15 10:49:33:7539] INFO: lws_h2_state: wsi 007CD6A0: state LWS_H2S_OPEN -> LWS_H2S_HALF_CLOSED_REMOTE
+[2019/05/15 10:49:33:7539] DEBUG: lws_h2_parse_end_of_frame: setting DEF_ACT from 0x20000117
+[2019/05/15 10:49:33:7539] DEBUG: lwsi_set_state(007CD6A0, 0x2000010f)
+[2019/05/15 10:49:33:7539] INFO: mark 007CD6A0 pending writable
+[2019/05/15 10:49:33:7539] INFO: mark 01283F48 pending writable
+[2019/05/15 10:49:33:7539] INFO: rops_handle_POLLIN_h2: wsistate 0x20000117, pollout 2
+[2019/05/15 10:49:33:7539] INFO: servicing pps
+[2019/05/15 10:49:33:7539] INFO: lws_h2_do_pps_send: 01283F48: 6
+[2019/05/15 10:49:33:7539] DEBUG: Issuing LWS_H2_PPS_UPDATE_WINDOW: sid 1: add 262144
+[2019/05/15 10:49:33:7539] DEBUG: lws_h2_frame_write: 01283F48 (eff 01283F48). typ 8, fl 0x0, sid=1, len=4, txcr=2147418113, nwsi->txcr=2147418113
+[2019/05/15 10:49:33:7539] INFO: lws_issue_raw: ssl_capable_write (13) says 13
+[2019/05/15 10:49:33:7539] INFO: rops_handle_POLLIN_h2: wsistate 0x20000117, pollout 2
+[2019/05/15 10:49:33:7539] INFO: servicing pps
+[2019/05/15 10:49:33:7539] INFO: lws_h2_do_pps_send: 01283F48: 6
+[2019/05/15 10:49:33:7539] DEBUG: Issuing LWS_H2_PPS_UPDATE_WINDOW: sid 0: add 262144
+[2019/05/15 10:49:33:7539] DEBUG: lws_h2_frame_write: 01283F48 (eff 01283F48). typ 8, fl 0x0, sid=0, len=4, txcr=2147418113, nwsi->txcr=2147418113
+[2019/05/15 10:49:33:7539] INFO: lws_issue_raw: ssl_capable_write (13) says 13
+[2019/05/15 10:49:33:7539] INFO: rops_handle_POLLIN_h2: wsistate 0x20000117, pollout 2
+[2019/05/15 10:49:33:7539] DEBUG: _lws_change_pollfd: wsi 01283F48: fd 428 events 11 -> 9
+[2019/05/15 10:49:33:7539] INFO: lws_h2_dump_waiting_children: 01283F48: children waiting for POLLOUT service:
+[2019/05/15 10:49:33:7539] INFO:   * 007CD6A0 h2 http-only
+[2019/05/15 10:49:33:7539] DEBUG: servicing child 007CD6A0
+[2019/05/15 10:49:33:7539] DEBUG: w=007CD6A0, *wsi2 = 007CD6A0
+[2019/05/15 10:49:33:7539] INFO: rops_perform_user_POLLOUT_h2: child 007CD6A0 (wsistate 0x2000010f)
+[2019/05/15 10:49:33:7539] DEBUG: lwsi_set_state(007CD6A0, 0x20000117)
+[2019/05/15 10:49:33:7539] INFO:   h2 action start...
+[2019/05/15 10:49:33:7539] INFO: Method: ':path' (8), request for '/index.html'
+[2019/05/15 10:49:33:7539] DEBUG: lws_ensure_user_space: 007CD6A0 protocol pss 0, user_space=00000000
+[2019/05/15 10:49:33:7539] DEBUG: __lws_set_timeout: 007CD6A0: 20 secs (reason 10)
+[2019/05/15 10:49:33:7549] INFO: lws_get_mimetype: match to server mimetype: text/html
+[2019/05/15 10:49:33:7549] DEBUG: lws_h2_frame_write: 007CD6A0 (eff 01283F48). typ 1, fl 0x4, sid=1, len=402, txcr=1073741824, nwsi->txcr=2147418113
+[2019/05/15 10:49:33:7549] INFO: lws_issue_raw: ssl_capable_write (411) says 411
+[2019/05/15 10:49:33:7549] DEBUG: lwsi_set_state(007CD6A0, 0x20000014)
+[2019/05/15 10:49:33:7549] INFO: mark 007CD6A0 pending writable
+[2019/05/15 10:49:33:7549] INFO: mark 01283F48 pending writable
+[2019/05/15 10:49:33:7549] DEBUG: _lws_change_pollfd: wsi 01283F48: fd 428 events 9 -> 11
+[2019/05/15 10:49:33:7549] INFO:   h2 action result 0 (wsi->http.rx_content_remain 0)
+[2019/05/15 10:49:33:7549] DEBUG: _lws_change_pollfd: wsi 01283F48: fd 428 events 11 -> 11
+[2019/05/15 10:49:33:7549] INFO: rops_handle_POLLIN_h2: wsistate 0x20000117, pollout 2
+[2019/05/15 10:49:33:7549] DEBUG: _lws_change_pollfd: wsi 01283F48: fd 428 events 11 -> 9
+[2019/05/15 10:49:33:7549] INFO: lws_h2_dump_waiting_children: 01283F48: children waiting for POLLOUT service:
+[2019/05/15 10:49:33:7549] INFO:   * 007CD6A0 h2 http-only
+[2019/05/15 10:49:33:7549] DEBUG: servicing child 007CD6A0
+[2019/05/15 10:49:33:7549] DEBUG: w=007CD6A0, *wsi2 = 007CD6A0
+[2019/05/15 10:49:33:7549] INFO: rops_perform_user_POLLOUT_h2: child 007CD6A0 (wsistate 0x20000014)
+[2019/05/15 10:49:33:7549] DEBUG: wsi->http2_substream 1
+[2019/05/15 10:49:33:7549] INFO: lws_h2_tx_cr_get: 007CD6A0: own tx credit 1073741824: nwsi credit 2147418113
+[2019/05/15 10:49:33:7549] DEBUG: lws_serve_http_file_fragment: sending 448
+[2019/05/15 10:49:33:7549] DEBUG: __lws_set_timeout: 007CD6A0: 20 secs (reason 10)
+[2019/05/15 10:49:33:7549] INFO: rops_write_role_protocol_h2: 007CD6A0: setting END_STREAM
+[2019/05/15 10:49:33:7549] DEBUG: lws_h2_frame_write: 007CD6A0 (eff 01283F48). typ 0, fl 0x1, sid=1, len=448, txcr=1073741824, nwsi->txcr=2147418113
+[2019/05/15 10:49:33:7549] INFO: lws_issue_raw: ssl_capable_write (457) says 457
+[2019/05/15 10:49:33:7549] DEBUG: lwsi_set_state(007CD6A0, 0x20000117)
+[2019/05/15 10:49:33:7549] DEBUG: file completed
+[2019/05/15 10:49:33:7549] INFO: lws_http_transaction_completed: wsi 007CD6A0
+[2019/05/15 10:49:33:7549] DEBUG: lws_serve_http_file_fragment says 1
+[2019/05/15 10:49:33:7549] DEBUG: Closing POLLOUT child 007CD6A0
+[2019/05/15 10:49:33:7549] INFO: __lws_close_free_wsi: 007CD6A0: caller: h2 end stream file
+[2019/05/15 10:49:33:7549] INFO:  wsi: 007CD6A0, his parent 01283F48: siblings:
+[2019/05/15 10:49:33:7549] INFO:    \---- child h2 007CD6A0
+[2019/05/15 10:49:33:7549] INFO: closing 007CD6A0: parent 01283F48
+[2019/05/15 10:49:33:7549] INFO:   007CD6A0: disentangling from siblings
+[2019/05/15 10:49:33:7549] INFO:   007CD6A0 disentangled from sibling 00000000
+[2019/05/15 10:49:33:7549] INFO: __lws_close_free_wsi: shutdown conn: 007CD6A0 (sk -1, state 0x117)
+[2019/05/15 10:49:33:7549] DEBUG: __lws_close_free_wsi: real just_kill_connection: 007CD6A0 (sockfd -1)
+[2019/05/15 10:49:33:7549] DEBUG: lwsi_set_state(007CD6A0, 0x2000001e)
+[2019/05/15 10:49:33:7549] INFO: __lws_header_table_detach: wsi 007CD6A0: ah 007CE060 (tsi=0, count = 1)
+[2019/05/15 10:49:33:7549] INFO: __lws_header_table_detach: nobody usable waiting
+[2019/05/15 10:49:33:7549] INFO: _lws_destroy_ah: freed ah 007CE060 : pool length 0
+[2019/05/15 10:49:33:7549] INFO: __lws_header_table_detach: wsi 007CD6A0: ah 007CE060 (tsi=0, count = 0)
+[2019/05/15 10:49:33:7549] INFO: rops_destroy_role_h2: ah det due to close
+[2019/05/15 10:49:33:7559] INFO: lws_vhost_unbind_wsi: vh default: count_bound_wsi 2
+[2019/05/15 10:49:33:7559] DEBUG: __lws_free_wsi: 007CD6A0, remaining wsi 3
+[2019/05/15 10:49:33:7599] INFO: rops_handle_POLLIN_h2: wsistate 0x20000117, pollout 0
+[2019/05/15 10:49:33:7599] DEBUG: 01283F48: SSL_read says 9
+[2019/05/15 10:49:33:7599] DEBUG: __lws_set_timeout: 01283F48: 31 secs (reason 15)
+[2019/05/15 10:49:33:7599] DEBUG: 01283F48 (01283F48): fr hdr: typ 0x4, fla 0x1, sid 0x0, len 0x0
+[2019/05/15 10:49:33:7609] INFO: lws_h2_parse_frame_header: wsi 01283F48, State: LWS_H2S_IDLE, received cmd 4
+[2019/05/15 10:49:33:7609] INFO: LWS_H2_FRAME_TYPE_SETTINGS complete frame
+[2019/05/15 10:49:33:7609] INFO: rops_handle_POLLIN_h2: wsistate 0x20000117, pollout 2
+[2019/05/15 10:49:33:7609] DEBUG: _lws_change_pollfd: wsi 01283F48: fd 428 events 9 -> 9
+[2019/05/15 10:49:33:7609] INFO: lws_h2_dump_waiting_children: 01283F48: children waiting for POLLOUT service:
+[2019/05/15 10:49:33:8069] INFO: rops_handle_POLLIN_h2: wsistate 0x20000117, pollout 0
+[2019/05/15 10:49:33:8069] DEBUG: 01283F48: SSL_read says -1
+[2019/05/15 10:49:33:8069] DEBUG: 01283F48: ssl err 5 errno 0
+[2019/05/15 10:49:33:8069] INFO: rops_handle_POLLIN_h2: LWS_SSL_CAPABLE_ERROR
+[2019/05/15 10:49:33:8069] DEBUG: 01283F48: Close and handled
+[2019/05/15 10:49:33:8069] INFO: __lws_close_free_wsi: 01283F48: caller: close_and_handled
+[2019/05/15 10:49:33:8069] INFO: closing 01283F48: parent 00000000
+[2019/05/15 10:49:33:8069] DEBUG: SSL_shutdown=1 for fd 428
+[2019/05/15 10:49:33:8069] DEBUG: _lws_change_pollfd: wsi 01283F48: fd 428 events 9 -> 9
+[2019/05/15 10:49:33:8069] DEBUG: lwsi_set_state(01283F48, 0x2000001d)
+[2019/05/15 10:49:33:8069] DEBUG: __lws_set_timeout: 01283F48: 20 secs (reason 13)
+[2019/05/15 10:49:33:8069] DEBUG: Session Socket 01283F48 (fd=428) dead
+[2019/05/15 10:49:33:8069] DEBUG: 01283F48: Close and handled
+[2019/05/15 10:49:33:8069] INFO: __lws_close_free_wsi: 01283F48: caller: close_and_handled
+[2019/05/15 10:49:33:8069] INFO: closing 01283F48: parent 00000000
+[2019/05/15 10:49:33:8069] DEBUG: __lws_close_free_wsi: real just_kill_connection: 01283F48 (sockfd 428)
+[2019/05/15 10:49:33:8069] DEBUG: _lws_change_pollfd: wsi 01325738: fd 180 events 9 -> 9
+[2019/05/15 10:49:33:8069] DEBUG: lwsi_set_state(01283F48, 0x2000001e)
+[2019/05/15 10:49:33:8069] INFO: rops_destroy_role_h2: ah det due to close
+[2019/05/15 10:49:33:8069] INFO: lws_vhost_unbind_wsi: vh default: count_bound_wsi 1
+[2019/05/15 10:49:33:8069] DEBUG: __lws_free_wsi: 01283F48, remaining wsi 2
+[2019/05/15 10:49:34:8070] DEBUG: _realloc: size 352: cbwsi
+[2019/05/15 10:49:34:8070] DEBUG: _realloc: size 32: cbtmr
+[2019/05/15 10:49:34:8070] DEBUG: lws_service_periodic_checks: timed cb: vh default, protocol lws-abs-cli-raw-skt, reason 1000
+[2019/05/15 10:49:34:8070] DEBUG: _realloc: size 32: timed_vh
+[2019/05/15 10:49:35:8071] DEBUG: _realloc: size 352: cbwsi
+[2019/05/15 10:49:35:8071] DEBUG: _realloc: size 32: cbtmr
+[2019/05/15 10:49:35:8071] DEBUG: lws_service_periodic_checks: timed cb: vh default, protocol lws-abs-cli-raw-skt, reason 1000
+[2019/05/15 10:49:35:8071] DEBUG: _realloc: size 32: timed_vh
+[2019/05/15 10:49:36:8072] DEBUG: _realloc: size 352: cbwsi
+[2019/05/15 10:49:36:8072] DEBUG: _realloc: size 32: cbtmr
+[2019/05/15 10:49:36:8072] DEBUG: lws_service_periodic_checks: timed cb: vh default, protocol lws-abs-cli-raw-skt, reason 1000
+[2019/05/15 10:49:36:8072] DEBUG: _realloc: size 32: timed_vh
+[2019/05/15 10:49:37:8073] DEBUG: _realloc: size 352: cbwsi
+[2019/05/15 10:49:37:8073] DEBUG: _realloc: size 32: cbtmr
+[2019/05/15 10:49:37:8073] DEBUG: lws_service_periodic_checks: timed cb: vh default, protocol lws-abs-cli-raw-skt, reason 1000
+[2019/05/15 10:49:37:8073] DEBUG: _realloc: size 32: timed_vh
+[2019/05/15 10:49:38:8074] DEBUG: _realloc: size 352: cbwsi
+[2019/05/15 10:49:38:8074] DEBUG: _realloc: size 32: cbtmr
+[2019/05/15 10:49:38:8074] DEBUG: lws_service_periodic_checks: timed cb: vh default, protocol lws-abs-cli-raw-skt, reason 1000
+[2019/05/15 10:49:38:8074] DEBUG: _realloc: size 32: timed_vh
+[2019/05/15 10:49:39:8075] DEBUG: _realloc: size 352: cbwsi
+[2019/05/15 10:49:39:8075] DEBUG: _realloc: size 32: cbtmr
+[2019/05/15 10:49:39:8075] DEBUG: lws_service_periodic_checks: timed cb: vh default, protocol lws-abs-cli-raw-skt, reason 1000
+[2019/05/15 10:49:39:8075] DEBUG: _realloc: size 32: timed_vh
+[2019/05/15 10:49:39:8075] INFO: lws_context_destroy: ctx 00749FA0
+[2019/05/15 10:49:39:8075] INFO: __lws_close_free_wsi: 01325738: caller: ctx destroy
+[2019/05/15 10:49:39:8075] DEBUG: __lws_close_free_wsi: real just_kill_connection: 01325738 (sockfd 180)
+[2019/05/15 10:49:39:8075] DEBUG: lwsi_set_state(01325738, 0x1e)
+[2019/05/15 10:49:39:8075] DEBUG: __lws_close_free_wsi_final: wsi 01325738: fd 180
+[2019/05/15 10:49:39:8075] INFO: lws_vhost_unbind_wsi: vh default: count_bound_wsi 0
+[2019/05/15 10:49:39:8075] DEBUG: __lws_free_wsi: 01325738, remaining wsi 1
+[2019/05/15 10:49:39:8075] INFO: lws_vhost_destroy1
+[2019/05/15 10:49:39:8075] INFO: lws_context_destroy2: ctx 00749FA0
+[2019/05/15 10:49:39:8075] INFO: __lws_vhost_destroy2: 0074A4D8
+[2019/05/15 10:49:39:8075] INFO:   __lws_vhost_destroy2: Freeing vhost 0074A4D8
+[2019/05/15 10:49:39:8075] DEBUG: 010446FC: post vh listl
+[2019/05/15 10:49:39:8075] DEBUG: 01044728: post pdl
+[2019/05/15 10:49:39:8095] DEBUG: 01044750: baggage
+[2019/05/15 10:49:39:8095] DEBUG: 01044778: post dc2
+[2019/05/15 10:49:39:8095] DEBUG: lws_context_destroy3
+[2019/05/15 10:49:39:8095] INFO: lws_context_destroy3: ctx 00749FA0 freed
