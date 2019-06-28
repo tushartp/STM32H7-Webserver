@@ -137,7 +137,7 @@ ETH_HandleTypeDef heth;
 ETH_TxPacketConfig TxConfig;
 
 /* Memory Pool Declaration */
-LWIP_MEMPOOL_DECLARE(RX_POOL, 10, sizeof(struct pbuf_custom), "Zero-copy RX PBUF pool");
+//LWIP_MEMPOOL_DECLARE(RX_POOL, 8, sizeof(struct pbuf_custom), "Zero-copy RX PBUF pool");
 
 /* Private function prototypes -----------------------------------------------*/
 int32_t ETH_PHY_IO_Init(void);
@@ -158,7 +158,7 @@ lan8742_IOCtx_t  LAN8742_IOCtx = {ETH_PHY_IO_Init,
 /* USER CODE END 3 */
 
 /* Private functions ---------------------------------------------------------*/
-void pbuf_free_custom(struct pbuf *p);
+//void pbuf_free_custom(struct pbuf *p);
 //void Error_Handler(void);
 
 void HAL_ETH_MspInit(ETH_HandleTypeDef* ethHandle)
@@ -169,7 +169,10 @@ void HAL_ETH_MspInit(ETH_HandleTypeDef* ethHandle)
   /* USER CODE BEGIN ETH_MspInit 0 */
 
   /* USER CODE END ETH_MspInit 0 */
-
+    /* Enable Peripheral clock */
+    __HAL_RCC_ETH1MAC_CLK_ENABLE();
+    __HAL_RCC_ETH1TX_CLK_ENABLE();
+    __HAL_RCC_ETH1RX_CLK_ENABLE();
   
     __HAL_RCC_GPIOG_CLK_ENABLE();
     __HAL_RCC_GPIOC_CLK_ENABLE();
@@ -217,10 +220,7 @@ void HAL_ETH_MspInit(ETH_HandleTypeDef* ethHandle)
     HAL_NVIC_SetPriority(ETH_IRQn, 0x06, 0);
     HAL_NVIC_EnableIRQ(ETH_IRQn);
   /* USER CODE BEGIN ETH_MspInit 1 */
-    /* Enable Peripheral clock */
-    __HAL_RCC_ETH1MAC_CLK_ENABLE();
-    __HAL_RCC_ETH1TX_CLK_ENABLE();
-    __HAL_RCC_ETH1RX_CLK_ENABLE();
+
   /* USER CODE END ETH_MspInit 1 */
   }
 }
@@ -308,7 +308,7 @@ static void low_level_init(struct netif *netif)
   heth.Init.MediaInterface = HAL_ETH_RMII_MODE;
   heth.Init.TxDesc = DMATxDscrTab;
   heth.Init.RxDesc = DMARxDscrTab;
-  heth.Init.RxBuffLen = 1524;
+  heth.Init.RxBuffLen = ETH_RX_BUFFER_SIZE;
 
   /* USER CODE BEGIN MACADDRESS */
     
@@ -324,7 +324,7 @@ static void low_level_init(struct netif *netif)
   /* End ETH HAL Init */
   
   /* Initialize the RX POOL */
-  LWIP_MEMPOOL_INIT(RX_POOL);
+  //LWIP_MEMPOOL_INIT(RX_POOL);
   
 #if LWIP_ARP || LWIP_ETHERNET 
 
@@ -495,6 +495,7 @@ static err_t low_level_output(struct netif *netif, struct pbuf *p)
  * @return a pbuf filled with the received packet (including MAC header)
  *         NULL on memory error
    */
+#if 0
 static struct pbuf * low_level_input(struct netif *netif)
 {
   struct pbuf *p = NULL;
@@ -516,7 +517,40 @@ static struct pbuf * low_level_input(struct netif *netif)
     custom_pbuf  = (struct pbuf_custom*)LWIP_MEMPOOL_ALLOC(RX_POOL);
     custom_pbuf->custom_free_function = pbuf_free_custom;
 
-    p = pbuf_alloced_custom(PBUF_RAW, framelength, PBUF_REF, custom_pbuf, RxBuff.buffer, ETH_RX_BUFFER_SIZE);
+    p = pbuf_alloced_custom(PBUF_RAW, framelength, PBUF_POOL/*PBUF_REF*/, custom_pbuf, RxBuff.buffer, ETH_RX_BUFFER_SIZE);
+  }
+  
+  
+  return p;
+}
+#endif
+
+static struct pbuf * low_level_input(struct netif *netif)
+{
+  struct pbuf *p = NULL;
+  ETH_BufferTypeDef RxBuff;
+  uint32_t framelength = 0;
+
+  if(HAL_ETH_GetRxDataBuffer(&heth, &RxBuff) == HAL_OK)
+  {
+
+    HAL_ETH_GetRxDataLength(&heth, &framelength);
+
+    /* Build Rx descriptor to be ready for next data reception */
+    HAL_ETH_BuildRxDescriptors(&heth);
+
+	/* Clean and Invalidate data cache */
+	SCB_InvalidateDCache_by_Addr((uint32_t *)RxBuff.buffer, framelength);
+
+    p = pbuf_alloc(PBUF_RAW, framelength, PBUF_POOL);
+    if (p)
+    {
+      pbuf_take(p, RxBuff.buffer, framelength);
+    }
+    else
+    {
+    	configPRINTF("Packet received is lost!\n");
+    }
   }
   
   
@@ -646,18 +680,19 @@ err_t ethernetif_init(struct netif *netif)
   * @param  pbuf: pbuf to be freed
   * @retval None
   */
+#if 0
 void pbuf_free_custom(struct pbuf *p)
 {
   struct pbuf_custom* custom_pbuf = (struct pbuf_custom*)p;
   
   /* Invalidate data cache: lwIP and/or application may have written into buffer */
  
-  SCB_InvalidateDCache_by_Addr((uint32_t *)p->payload, p->tot_len);
+  //SCB_InvalidateDCache_by_Addr((uint32_t *)p->payload, p->tot_len);
  
   
   LWIP_MEMPOOL_FREE(RX_POOL, custom_pbuf);
 }
-
+#endif
 /* USER CODE BEGIN 6 */
 
 /**

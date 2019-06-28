@@ -223,7 +223,7 @@
 
  /* LWIP_SUPPORT_CUSTOM_PBUF == 1: to pass directly MAC Rx buffers to the stack
     no copy is needed */
- #define LWIP_SUPPORT_CUSTOM_PBUF      1
+ //#define LWIP_SUPPORT_CUSTOM_PBUF      1
 
 
  /* ---------- TCP options ---------- */

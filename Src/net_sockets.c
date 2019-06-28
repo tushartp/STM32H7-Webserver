@@ -587,6 +587,7 @@ int mbedtls_net_send( void *ctx, const unsigned char *buf, size_t len )
 
   if( ret < 0 )
   {
+	configPRINTF("mbedtls_net_send error %d: ",ret);
     if( net_would_block( ctx, &error ) != 0 )
         return( MBEDTLS_ERR_SSL_WANT_WRITE );
     
