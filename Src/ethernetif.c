@@ -137,8 +137,9 @@ ETH_HandleTypeDef heth;
 ETH_TxPacketConfig TxConfig;
 
 /* Memory Pool Declaration */
-//LWIP_MEMPOOL_DECLARE(RX_POOL, 8, sizeof(struct pbuf_custom), "Zero-copy RX PBUF pool");
-
+#if (ipconfigZERO_COPY_RX_DRIVER == 1)
+LWIP_MEMPOOL_DECLARE(RX_POOL, 8, sizeof(struct pbuf_custom), "Zero-copy RX PBUF pool");
+#endif
 /* Private function prototypes -----------------------------------------------*/
 int32_t ETH_PHY_IO_Init(void);
 int32_t ETH_PHY_IO_DeInit (void);
@@ -158,7 +159,9 @@ lan8742_IOCtx_t  LAN8742_IOCtx = {ETH_PHY_IO_Init,
 /* USER CODE END 3 */
 
 /* Private functions ---------------------------------------------------------*/
-//void pbuf_free_custom(struct pbuf *p);
+#if (ipconfigZERO_COPY_RX_DRIVER == 1)
+void pbuf_free_custom(struct pbuf *p);
+#endif
 //void Error_Handler(void);
 
 void HAL_ETH_MspInit(ETH_HandleTypeDef* ethHandle)
@@ -322,10 +325,10 @@ static void low_level_init(struct netif *netif)
   TxConfig.CRCPadCtrl = ETH_CRC_PAD_INSERT;
 
   /* End ETH HAL Init */
-  
+#if (ipconfigZERO_COPY_RX_DRIVER == 1)
   /* Initialize the RX POOL */
-  //LWIP_MEMPOOL_INIT(RX_POOL);
-  
+  LWIP_MEMPOOL_INIT(RX_POOL);
+#endif
 #if LWIP_ARP || LWIP_ETHERNET 
 
   /* set MAC hardware address length */
@@ -495,7 +498,7 @@ static err_t low_level_output(struct netif *netif, struct pbuf *p)
  * @return a pbuf filled with the received packet (including MAC header)
  *         NULL on memory error
    */
-#if 0
+#if (ipconfigZERO_COPY_RX_DRIVER == 1)
 static struct pbuf * low_level_input(struct netif *netif)
 {
   struct pbuf *p = NULL;
@@ -523,7 +526,7 @@ static struct pbuf * low_level_input(struct netif *netif)
   
   return p;
 }
-#endif
+#else
 
 static struct pbuf * low_level_input(struct netif *netif)
 {
@@ -556,7 +559,7 @@ static struct pbuf * low_level_input(struct netif *netif)
   
   return p;
 }
-
+#endif
 /**
  * This function should be called when a packet is ready to be read
  * from the interface. It uses the function low_level_input() that
@@ -680,7 +683,7 @@ err_t ethernetif_init(struct netif *netif)
   * @param  pbuf: pbuf to be freed
   * @retval None
   */
-#if 0
+#if (ipconfigZERO_COPY_RX_DRIVER == 1)
 void pbuf_free_custom(struct pbuf *p)
 {
   struct pbuf_custom* custom_pbuf = (struct pbuf_custom*)p;

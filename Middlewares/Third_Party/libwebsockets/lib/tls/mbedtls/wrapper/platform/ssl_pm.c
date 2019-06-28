@@ -175,7 +175,7 @@ int ssl_pm_new(SSL *ssl)
     mbedtls_ssl_conf_rng(&ssl_pm->conf, mbedtls_ctr_drbg_random, &ssl_pm->ctr_drbg);
 
 //#ifdef CONFIG_OPENSSL_LOWLEVEL_DEBUG
-    mbedtls_debug_set_threshold(MBEDTLS_DEBUG_LEVEL);
+    //mbedtls_debug_set_threshold(MBEDTLS_DEBUG_LEVEL);
 //    mbedtls_ssl_conf_dbg(&ssl_pm->conf, ssl_platform_debug, NULL);
 //#else
     mbedtls_ssl_conf_dbg(&ssl_pm->conf, ssl_platform_debug, NULL);

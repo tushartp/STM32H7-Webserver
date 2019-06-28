@@ -166,6 +166,11 @@
 /*-----------------------------------------------------------------------------*/
 /* USER CODE BEGIN 1 */
  
+
+#define ipconfigZERO_COPY_TX_DRIVER	1
+#define ipconfigZERO_COPY_RX_DRIVER	0
+
+ 
  /**
   * SYS_LIGHTWEIGHT_PROT==1: if you want inter-task protection for certain
   * critical regions during buffer allocation, deallocation and memory
@@ -223,8 +228,9 @@
 
  /* LWIP_SUPPORT_CUSTOM_PBUF == 1: to pass directly MAC Rx buffers to the stack
     no copy is needed */
- //#define LWIP_SUPPORT_CUSTOM_PBUF      1
-
+#if (ipconfigZERO_COPY_RX_DRIVER == 1)
+ #define LWIP_SUPPORT_CUSTOM_PBUF      1
+#endif
 
  /* ---------- TCP options ---------- */
  #define LWIP_TCP                1
