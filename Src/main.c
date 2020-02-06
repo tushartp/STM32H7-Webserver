@@ -200,7 +200,7 @@ int main(void)
 
   /* Create the thread(s) */
   /* definition and creation of defaultTask */
-  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 128 *3);
+  osThreadDef(defaultTask, StartDefaultTask, osPriorityNormal, 0, 128 *20);
   defaultTaskHandle = osThreadCreate(osThread(defaultTask), NULL);
 
   /* USER CODE BEGIN RTOS_THREADS */
@@ -878,7 +878,7 @@ void StartDefaultTask(void const * argument)
   /* Up to user to call mbedtls_net_init() function in MBEDTLS initialization step */
 	//MX_LWIP_Init();
   /* Up to user define the empty MX_MBEDTLS_Init() function located in mbedtls.c file */
-//#if 0
+#if 0
   MX_MBEDTLS_Init();
 	#ifdef LWIP_DHCP
 	 while(DHCP_state != DHCP_ADDRESS_ASSIGNED)
@@ -897,7 +897,7 @@ void StartDefaultTask(void const * argument)
   osThreadDef(httpserver, minimal_http_server_tls, osPriorityAboveNormal, 0, configMINIMAL_STACK_SIZE * 25);
   osThreadCreate (osThread(httpserver), NULL);
 
-//#endif
+#endif
   /* Infinite loop */
   for(;;)
   {

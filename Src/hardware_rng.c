@@ -56,28 +56,19 @@
 #include "string.h"
 #include "stm32h7xx_hal.h"
 #include "mbedtls/entropy_poll.h"
+#include "cmsis_os.h"
 
 extern RNG_HandleTypeDef hrng;
 uint32_t stm32_random(void);
+int os_get_random(unsigned char *buf, size_t len);
+
 int mbedtls_hardware_poll( void *Data, unsigned char *Output, size_t Len, size_t *oLen )
 {
-  uint32_t index;
-  uint32_t randomValue;
-		
-  for (index = 0; index < Len/4; index++)
-  {
-    if (HAL_RNG_GenerateRandomNumber(&hrng, &randomValue) == HAL_OK)
-    {
-      *oLen += 4;
-      memset(&(Output[index * 4]), (int)randomValue, 4);
-    }
-    else
-    {
-      Error_Handler();
-    }
-  }
-  
-  return 0;
+
+	os_get_random(Output, Len);
+	*oLen = Len;
+	return 0;
+
 }
 
 
@@ -95,6 +86,27 @@ uint32_t stm32_random(void)
     }
 
 	return 0;
+}
+
+int os_get_random(unsigned char *buf, size_t len)
+{
+  uint32_t index;
+  uint32_t randomValue;
+
+  for (index = 0; index < len/4; index++)
+  {
+	if (HAL_RNG_GenerateRandomNumber(&hrng, &randomValue) == HAL_OK)
+	{
+	  //*oLen += 4;
+	  memset(&(buf[index * 4]), (int)randomValue, 4);
+	}
+	else
+	{
+	  Error_Handler();
+	}
+  }
+
+  return 0;
 }
 
 #endif /*MBEDTLS_ENTROPY_HARDWARE_ALT*/

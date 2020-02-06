@@ -306,6 +306,36 @@ BlockLink_t *pxLink;
 		}
 	}
 }
+
+size_t xPortGetMemSize( void *pv)
+{
+	uint8_t *puc = ( uint8_t * ) pv;
+	BlockLink_t *pxLink;
+	size_t xSize = 0;;
+		if( pv != NULL )
+		{
+			/* The memory being used will have an BlockLink_t structure immediately
+			before it. */
+			puc -= xHeapStructSize;
+
+			/* This casting is to keep the compiler from issuing warnings. */
+			pxLink = ( void * ) puc;
+
+			/* Check the block is actually allocated. */
+			configASSERT( ( pxLink->xBlockSize & xBlockAllocatedBit ) != 0 );
+			configASSERT( pxLink->pxNextFreeBlock == NULL );
+
+			if( ( pxLink->xBlockSize & xBlockAllocatedBit ) != 0 )
+			{
+				/*This block size of the allocated memory*/
+				xSize = pxLink->xBlockSize;
+				/*Remove the allocation bit from the size*/
+				xSize &= ~xBlockAllocatedBit;
+			}
+		}
+		return xSize;
+}
+
 /*-----------------------------------------------------------*/
 
 size_t xPortGetFreeHeapSize( void )

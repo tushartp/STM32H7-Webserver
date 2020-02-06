@@ -21,6 +21,7 @@
 
 #include "core/private.h"
 extern uint32_t stm32_random(void);
+//extern int os_get_random(unsigned char *buf, size_t len);
 uint64_t
 lws_time_in_microseconds(void)
 {
@@ -35,7 +36,8 @@ lws_get_random(struct lws_context *context, void *buf, int len)
 	uint8_t *pb = buf;
 
 	while (len) {
-		uint32_t r = stm32_random();
+		uint32_t r= stm32_random();
+		//os_get_random(&r, 4);
 		uint8_t *p = (uint8_t *)&r;
 		int b = 4;
 

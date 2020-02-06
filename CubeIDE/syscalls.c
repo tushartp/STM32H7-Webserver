@@ -184,8 +184,7 @@ int _wait(int *status)
 
 int _unlink(char *name)
 {
-	errno = ENOENT;
-	return -1;
+	return unlink(name);
 }
 
 int _times(struct tms *buf)

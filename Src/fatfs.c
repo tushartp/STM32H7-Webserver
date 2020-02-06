@@ -49,6 +49,8 @@
 #include <stdio.h>
 #include <time.h>
 #include "fatfs.h"
+#include "sqlite3.h"
+#include "FreeRTOS.h"
 
 uint8_t retSD;    /* Return value for SD */
 FATFS SDFatFs;  /* File system object for SD card logical drive */
@@ -72,7 +74,7 @@ static void FATFS_SDDiskInit(char *path);
 static uint8_t isInitialized = 0;
 static uint8_t isFsCreated = 0;
 static __IO uint8_t statusChanged = 0;
-
+static void testdatabase(void);
 uint8_t workBuffer[2 * _MAX_SS];
 /*
  * ensure that the read buffer 'rtext' is 32-Byte aligned in address and size
@@ -81,6 +83,7 @@ uint8_t workBuffer[2 * _MAX_SS];
  */
 ALIGN_32BYTES(uint8_t rtext[64]);
 
+extern int sqlite_config_options();
 /* USER CODE END Variables */    
 
 void MX_FATFS_Init(void) 
@@ -98,6 +101,7 @@ void MX_FATFS_Init(void)
 	FATFS_SDDiskInit(SDPath);
 	/* Create Storage Message Queue */
 	//osMessageQDef(osqueue, 10, uint16_t);
+	testdatabase();
 	//ConnectionEvent = osMessageCreate (osMessageQ(osqueue), NULL);
 
 
@@ -126,6 +130,119 @@ DWORD get_fattime(void)
 }
 
 /* USER CODE BEGIN Application */
+
+/* USER CODE BEGIN Application */
+
+static int callback(void *NotUsed, int argc, char **argv, char **azColName) {
+   int i;
+   for(i = 0; i<argc; i++) {
+	   configPRINTF("%s = %s\n", azColName[i], argv[i] ? argv[i] : "NULL");
+   }
+   configPRINTF("\n");
+   return 0;
+}
+
+
+static int Createtable()
+{
+	   sqlite3 *db;
+	   char *zErrMsg = 0;
+	   int rc;
+	   char *sql;
+
+	   /* Open database */
+	   rc = sqlite3_open("test.db", &db);
+
+	   if( rc ) {
+		   configPRINTF("Can't open database: %s\n", sqlite3_errmsg(db));
+	      return(rc);
+	   } else {
+		   configPRINTF("Opened database successfully\n");
+	   }
+
+	   /* Create SQL statement */
+	   sql = "CREATE TABLE COMPANY("  \
+	         "ID INT PRIMARY KEY     NOT NULL," \
+	         "NAME           TEXT    NOT NULL," \
+	         "AGE            INT     NOT NULL," \
+	         "ADDRESS        CHAR(50)," \
+	         "SALARY         REAL );";
+
+	   /* Execute SQL statement */
+	   rc = sqlite3_exec(db, sql, callback, 0, &zErrMsg);
+
+	   if( rc != SQLITE_OK ){
+		   configPRINTF("SQL error: %s\n", zErrMsg);
+	      sqlite3_free(zErrMsg);
+	   } else {
+		   configPRINTF("Table created successfully\n");
+	   }
+	   sqlite3_close(db);
+	   return 0;
+
+
+}
+
+
+static int InsertValues()
+{
+	   sqlite3 *db;
+	   char *zErrMsg = 0;
+	   int rc;
+	   char *sql;
+
+	   /* Open database */
+	   rc = sqlite3_open("test.db", &db);
+
+	   if( rc ) {
+		   configPRINTF("Can't open database: %s\n", sqlite3_errmsg(db));
+	      return(0);
+	   } else {
+		   configPRINTF("Opened database successfully\n");
+	   }
+
+	   /* Create SQL statement */
+	   sql = "INSERT INTO COMPANY (ID,NAME,AGE,ADDRESS,SALARY) "  \
+	         "VALUES (1, 'Paul', 32, 'California', 20000.00 ); " \
+	         "INSERT INTO COMPANY (ID,NAME,AGE,ADDRESS,SALARY) "  \
+	         "VALUES (2, 'Allen', 25, 'Texas', 15000.00 ); "     \
+	         "INSERT INTO COMPANY (ID,NAME,AGE,ADDRESS,SALARY)" \
+	         "VALUES (3, 'Teddy', 23, 'Norway', 20000.00 );" \
+	         "INSERT INTO COMPANY (ID,NAME,AGE,ADDRESS,SALARY)" \
+	         "VALUES (4, 'Mark', 25, 'Rich-Mond ', 65000.00 );";
+
+	   /* Execute SQL statement */
+	   rc = sqlite3_exec(db, sql, callback, 0, &zErrMsg);
+
+	   if( rc != SQLITE_OK ){
+		   configPRINTF("SQL error: %s\n", zErrMsg);
+	      sqlite3_free(zErrMsg);
+	   } else {
+		   configPRINTF("Records created successfully\n");
+	   }
+	   sqlite3_close(db);
+	   return 0;
+}
+
+
+static void testdatabase(void)
+{
+	  sqlite_config_options();
+	  //sqlite3_os_init();
+
+	  if(Createtable() != SQLITE_OK)
+	  {
+		  Error_Handler();
+	  }
+	  else
+	  {
+		  if(InsertValues() != SQLITE_OK)
+		  {
+			  Error_Handler();
+		  }
+	  }
+}
+
 static void SD_Initialize(void)
 {
   if (isInitialized == 0)
