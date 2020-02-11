@@ -6,13 +6,15 @@
  */
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
+#include <stdint.h>
 #include <errno.h>
 #include <time.h>
 #include <sys/stat.h>
-#include "sqliteInt.h"
-//#include "sqlite3.h"
+#include <assert.h>
+//#include "sqliteInt.h"
+#include "sqlite3.h"
 #include "FreeRTOS.h"
-#include "os_common.h"
 #include "fatfs_wrapper.h"
 
 //uint32_t xpBufSqlite_Heap[20*1024];
@@ -23,9 +25,8 @@ extern int os_get_random(unsigned char *buf, size_t len);
 ** Size of the write buffer used by journal files in bytes.
 */
 #ifndef SQLITE_DEMOVFS_BUFFERSZ
-# define SQLITE_DEMOVFS_BUFFERSZ 4096
+# define SQLITE_DEMOVFS_BUFFERSZ 8192
 #endif
-
 
 int sqlite_config_options();
 
@@ -45,7 +46,7 @@ void *xSqliteMemMalloc(int Bytes)
  */
 void vSqliteMemFree(void *pv)
 {
-	vPortFree(pv);
+vPortFree(pv);
 }
 
 /*
@@ -76,7 +77,7 @@ static int pvSqliteMemRoundup(int n){
  */
 static int pvSqliteMemInit(void *pAppData)
 {
-	UNUSED_PARAMETER(pAppData);
+	(void)(pAppData);
 	return (int) SQLITE_OK;
 }
 /*
@@ -84,7 +85,7 @@ static int pvSqliteMemInit(void *pAppData)
  */
 static void pvSqliteMemShutdown(void *pAppData)
 {
-	UNUSED_PARAMETER(pAppData);
+	(void)(pAppData);
 }
 /*
 ** An instance of this object defines the interface between SQLite
@@ -143,12 +144,9 @@ void sqlite3MemSetDefault(void){
 typedef struct FatFsFile FatFsFile;
 struct FatFsFile {
   sqlite3_file base;					/* Base class. Must be first. */
-  sqlite3_vfs *pVfs;                  /* The VFS that created this rawFile */
+  //sqlite3_vfs *pVfs;                  /* The VFS that created this rawFile */
   FILE * h;                            	/* Pointer to access the file */
-  DWORD sectorSize;                   /* Sector size of the device file is on */
   char name[MAXPATHNAME];
-  unsigned short int ctrlFlags;       /* Behavioral bits.  RAWFILE_* flags */
-  int szChunk;                        /* Configured by FCNTL_CHUNK_SIZE */
   char *aBuffer;                  		/* Pointer to malloc'd buffer */
   int nBuffer;                    		/* Valid bytes of data in zBuffer */
   sqlite3_int64 iBufferOfst;      /* Offset in file of zBuffer[0] */
@@ -221,7 +219,7 @@ static void prvGetTempPath(int len, char *path)
         strcpy(path, "0:");
     }
 }
-
+#if 0
 static int prvGetTempname(int nBuf, char *zBuf){
   static char zChars[] =
     "abcdefghijklmnopqrstuvwxyz"
@@ -255,7 +253,7 @@ static int prvGetTempname(int nBuf, char *zBuf){
   configPRINTF("TEMP FILENAME: %s\n", zBuf);
   return SQLITE_OK;
 }
-
+#endif
 
 /*
 ** Write directly to the file passed as the first argument. Even if the
@@ -267,17 +265,20 @@ static int xFreeRTOSDirectWrite(
   int iAmt,                       /* Size of data to write in bytes */
   sqlite_int64 iOfst              /* File offset to write to */
 ){
-  off_t ofst;                     /* Return value from lseek() */
+  off_t offset;                     /* Return value from lseek() */
   size_t nWrite;                  /* Return value from write() */
+  int rc;
+  offset = (off_t)(iOfst & 0x7FFFFFFF);
 
-  ofst = fseek(p->h, iOfst, SEEK_SET);
-  if( ofst!= 0 ){
+  configPRINTF("1:DirectWrite: 1w %s %d %ld[%ld] \n", p->name, iAmt, iOfst, offset );
+  rc = fseek(p->h, offset, SEEK_SET);
+  if( rc!= 0 ){
     return SQLITE_IOERR_WRITE;
   }
 
   nWrite = fwrite( zBuf, 1, iAmt, p->h);
   if( nWrite!=iAmt ){
-	configPRINTF("Flush file write=%p, name=%s\n", p->h, p->name);
+	configPRINTF("2:DirectWrite write=%p, name=%s\n", p->h, p->name);
     return SQLITE_IOERR_WRITE;
   }
 
@@ -320,11 +321,9 @@ static int xFreeRTOSClose(sqlite3_file *id){
 	  rc = fclose(pFile->h);
 
 	  if( rc == 0 ){
-	    sqlite3_free(pFile->h);
+	    //sqlite3_free(pFile->h);
 	    pFile->h = NULL;
 	  }
-
-	  OpenCounter(-1);
 	  configPRINTF("CLOSE file=%p, name=%s, rc=%d\n", pFile->h, pFile->name, errno);
 
 	  return (rc == 0) ? SQLITE_OK : SQLITE_IOERR_CLOSE;
@@ -340,16 +339,15 @@ static int xFreeRTOSRead(
   sqlite3_file *id,          /* File to read from */
   void *pBuf,                /* Write content into this buffer */
   int amt,                   /* Number of bytes to read */
-  sqlite3_int64 offset       /* Begin reading at this offset */
+  sqlite3_int64 iOfst       /* Begin reading at this offset */
 ){
   int rc;
   FatFsFile *pFile = (FatFsFile*)id;
 
   assert( id!=0 );
   assert( amt>0 );
-  assert( offset>=0 && offset <= MAXDWORD);
-  SimulateIOError(return SQLITE_IOERR_READ);
-  configPRINTF("1:READ file=%p, buffer=%p, amount=%d, offset=%lld\n", pFile->h, pBuf, amt, offset);
+  assert( iOfst>=0 && iOfst <= MAXDWORD);
+
 
   /* Flush any data in the write buffer to disk in case this operation
   ** is trying to read data the file-region currently cached in the buffer.
@@ -357,20 +355,23 @@ static int xFreeRTOSRead(
   ** unnecessary write here, but in practice SQLite will rarely read from
   ** a journal file when there is data cached in the write-buffer.
   */
+  configPRINTF("0:READ FlushBuffer\n");
   rc = xFreeRTOSFlushBuffer(pFile);
   if( rc!=SQLITE_OK ){
     return rc;
   }
+  off_t offset = (off_t)(iOfst & 0x7FFFFFFF);
 
+  configPRINTF("1:READ file=%p, buffer=%p, amount=%d, iOfst=%ld, offset=%ld\n", pFile->h, pBuf, amt, iOfst, offset);
   /* seek pos */
-  rc = fseek(pFile->h, (DWORD)offset, SEEK_SET);
+  rc = fseek(pFile->h, offset, SEEK_SET);
   if( rc != 0 ){
 	configPRINTF("2:READ file=%p, rc=%d\n", pFile->h, errno);
 	return SQLITE_IOERR_SEEK;
   }
 
   /* do read file */
-  rc = fread( pBuf, amt, 1, pFile->h);
+  rc = fread( pBuf, 1, amt, pFile->h);
 
   if(rc == amt)
   {
@@ -406,7 +407,7 @@ static int xFreeRTOSWrite(
   assert( pFile );
   assert( offset>=0 && offset <= MAXDWORD);
 
-  configPRINTF("1:WRITE name=%s file=%p, buffer=%p, amount=%d, offset=%lld\n", pFile->name, pFile->h, pBuf, amt, offset);
+  configPRINTF("1:WRITE name=%s file=%p, buffer=%p, amount=%d, offset=%ld\n", pFile->name, pFile->h, pBuf, amt, offset);
 
 
 
@@ -470,15 +471,20 @@ static int xFreeRTOSSync(sqlite3_file *id, int flags){
   FatFsFile *pFile = (FatFsFile*)id;
 
   assert( id!=0 );
-  UNUSED_PARAMETER(flags);
+  (void)(flags);
   configPRINTF("SYNC %d\n", pFile->h);
 
   rc = xFreeRTOSFlushBuffer(pFile);
   if( rc!=SQLITE_OK ){
     return rc;
   }
+  rc = fflush(pFile->h);
 
-  rc = fsync((pFile->h)->_file);
+  if(rc != 0)
+	  return SQLITE_IOERR_FSYNC;
+
+
+  rc = fsync(fileno(pFile->h));
 
   if(rc == 0){
     configPRINTF("SYNC %d SQLITE_OK\n", pFile->h);
@@ -494,7 +500,7 @@ static int xFreeRTOSSync(sqlite3_file *id, int flags){
 */
 static int xFreeRTOSFileSize(sqlite3_file *id, sqlite3_int64 *pSize){
 
-	FatFsFile *pFile = (FatFsFile*)id;
+  FatFsFile *pFile = (FatFsFile*)id;
   int rc;
   struct stat sStat;              /* Output of fstat() call */
   assert( id!=0 );
@@ -506,13 +512,13 @@ static int xFreeRTOSFileSize(sqlite3_file *id, sqlite3_int64 *pSize){
     return rc;
   }
 
-  rc = fstat((pFile->h)->_file, &sStat);
+  rc = fstat(fileno(pFile->h), &sStat);
 
   if( rc!=0 ) return SQLITE_IOERR_FSTAT;
 
   *pSize = sStat.st_size;
 
-  configPRINTF("SIZE file=%p, pSize=%p, *pSize=%lld\n",
+  configPRINTF("SIZE file=%p, pSize=%p, *pSize=%ld\n",
            pFile->h, pSize, *pSize);
 
   return SQLITE_OK;
@@ -526,14 +532,14 @@ static int xFreeRTOSFileSize(sqlite3_file *id, sqlite3_int64 *pSize){
 */
 
 static int xFreeRTOSLock(sqlite3_file *id, int eLock){
-  UNUSED_PARAMETER(id);
-  UNUSED_PARAMETER(eLock);
+  (void)(id);
+  (void)(eLock);
   return SQLITE_OK;
 }
 
 static int xFreeRTOSUnlock(sqlite3_file *id, int eLock){
-  UNUSED_PARAMETER(id);
-  UNUSED_PARAMETER(eLock);
+  (void)(id);
+  (void)(eLock);
   return SQLITE_OK;
 }
 /*
@@ -542,26 +548,12 @@ static int xFreeRTOSUnlock(sqlite3_file *id, int eLock){
 ** non-zero, otherwise zero.
 */
 static int xFreeRTOSCheckReservedLock(sqlite3_file *id, int *pResOut){
-  UNUSED_PARAMETER(id);
+  (void)(id);
   *pResOut = 0;
   return SQLITE_OK;
 }
 
-/*
-** If *pArg is inititially negative then this is a query.  Set *pArg to
-** 1 or 0 depending on whether or not bit mask of pFile->ctrlFlags is set.
-**
-** If *pArg is 0 or 1, then clear or set the mask bit of pFile->ctrlFlags.
-*/
-static void pvFreeRTOSModeBit(FatFsFile *pFile, unsigned char mask, int *pArg){
-  if( *pArg<0 ){
-    *pArg = (pFile->ctrlFlags & mask)!=0;
-  }else if( (*pArg)==0 ){
-    pFile->ctrlFlags &= ~mask;
-  }else{
-    pFile->ctrlFlags |= mask;
-  }
-}
+
 
 
 /*
@@ -569,6 +561,7 @@ static void pvFreeRTOSModeBit(FatFsFile *pFile, unsigned char mask, int *pArg){
 */
 
 static int xFreeRTOSFileControl(sqlite3_file *id, int op, void *pArg){
+#if 0
 	FatFsFile *pFile = (FatFsFile*)id;
 	  configPRINTF("FCNTL file=%p, op=%d, pArg=%p\n", pFile->h, op, pArg);
 	  switch( op ){
@@ -621,6 +614,8 @@ static int xFreeRTOSFileControl(sqlite3_file *id, int op, void *pArg){
 	  }
 	  configPRINTF("FCNTL file=%p, rc=SQLITE_NOTFOUND\n", pFile->h);
 	  return SQLITE_NOTFOUND;
+#endif
+	  return SQLITE_OK;
 }
 /*
 ** Return the sector size in bytes of the underlying block device for
@@ -636,9 +631,9 @@ static int xFreeRTOSFileControl(sqlite3_file *id, int op, void *pArg){
 static int xFreeRTOSSectorSize(sqlite3_file *id){
 
     /* To avoid unused parameter compiler warning */
-	UNUSED_PARAMETER(id);
+	(void)(id);
 
-    return SQLITE_DEFAULT_SECTOR_SIZE;
+    return 0;
 }
 
 /*
@@ -647,8 +642,10 @@ static int xFreeRTOSSectorSize(sqlite3_file *id){
 static int xFreeRTOSDeviceChar(sqlite3_file *id){
 	  FatFsFile *p = (FatFsFile*)id;
 	  assert( id!=0 );
+/*
 	  return SQLITE_IOCAP_UNDELETABLE_WHEN_OPEN |
-	         ((p->ctrlFlags & FATFSFILE_PSOW) ? SQLITE_IOCAP_POWERSAFE_OVERWRITE : 0);
+	         ((p->ctrlFlags & FATFSFILE_PSOW) ? SQLITE_IOCAP_POWERSAFE_OVERWRITE : 0);*/
+	  return 0;
 }
 
 
@@ -668,9 +665,9 @@ static int xFreeRTOSFetch(sqlite3_file* fd, sqlite3_int64 iOff, int nAmt, void *
 #if SQLITE_MAX_MMAP_SIZE>0
 	#error define some logic over here
 #else
-	  UNUSED_PARAMETER(fd);
-	  UNUSED_PARAMETER(iOff);
-	  UNUSED_PARAMETER(nAmt);
+	  (void)(fd);
+	  (void)(iOff);
+	  (void)(nAmt);
 	  *pp=0;
 #endif
 	  return SQLITE_OK;
@@ -691,9 +688,9 @@ static int xFreeRTOSUnFetch(sqlite3_file* fd, sqlite3_int64 iOff, void *p){
 #if SQLITE_MAX_MMAP_SIZE>0
 	#error define some logic over here
 #else
-	  UNUSED_PARAMETER(fd);
-	  UNUSED_PARAMETER(p);
-	  UNUSED_PARAMETER(iOff);
+	  (void)(fd);
+	  (void)(p);
+	  (void)(iOff);
 #endif
 	  return SQLITE_OK;
 }
@@ -702,7 +699,7 @@ static int xFreeRTOSUnFetch(sqlite3_file* fd, sqlite3_int64 iOff, void *p){
 ** for nucleus.
 */
 static const sqlite3_io_methods sqlite3FreeRTOSIoMethod = {
-		  3,							/*int iVersion;*/
+		  1,							/*int iVersion;*/
 		  xFreeRTOSClose,				/*int (*xClose)(sqlite3_file*);*/
 		  xFreeRTOSRead,				/*int (*xRead)(sqlite3_file*, void*, int iAmt, sqlite3_int64 iOfst);*/
 		  xFreeRTOSWrite,				/*int (*xWrite)(sqlite3_file*, const void*, int iAmt, sqlite3_int64 iOfst);*/
@@ -715,16 +712,6 @@ static const sqlite3_io_methods sqlite3FreeRTOSIoMethod = {
 		  xFreeRTOSFileControl,			/*int (*xFileControl)(sqlite3_file*, int op, void *pArg);*/
 		  xFreeRTOSSectorSize,			/*int (*xSectorSize)(sqlite3_file*);*/
 		  xFreeRTOSDeviceChar,			/*int (*xDeviceCharacteristics)(sqlite3_file*);*/
-		  /* Methods above are valid for version 1 */
-		  NULL,							/*int (*xShmMap)(sqlite3_file*, int iPg, int pgsz, int, void volatile**);*/
-		  NULL,							/*int (*xShmLock)(sqlite3_file*, int offset, int n, int flags);*/
-		  NULL,							/*void (*xShmBarrier)(sqlite3_file*);*/
-		  NULL,							/*int (*xShmUnmap)(sqlite3_file*, int deleteFlag);*/
-		  /* Methods above are valid for version 2 */
-		  xFreeRTOSFetch,				/*int (*xFetch)(sqlite3_file*, sqlite3_int64 iOfst, int iAmt, void **pp);*/
-		  xFreeRTOSUnFetch,				/*int (*xUnfetch)(sqlite3_file*, sqlite3_int64 iOfst, void *p);*/
-		  /* Methods above are valid for version 3 */
-		  /* Additional methods may be added in future releases */
 };
 
 
@@ -744,7 +731,6 @@ static int xFreeRTOSOpen(
   int *pOutFlags            /* Status return flags */
 ){
   FatFsFile *pFile = (FatFsFile *)id;
-  FILE *h = NULL;
   char *mode = "r";
   char *aBuf = 0;
 
@@ -777,14 +763,19 @@ static int xFreeRTOSOpen(
       return SQLITE_NOMEM;
     }
   }
-  h = fopen(zName, mode);
-  if(h == NULL)
+  pFile->h = fopen(zName, mode);
+  if(pFile->h == NULL)
   {
+	  sqlite3_free(aBuf);
 	  return SQLITE_CANTOPEN;
   }
+  pFile->aBuffer = aBuf;
   configPRINTF("OPEN name=%s, mode=%s\n", zName, mode);
   pFile->base.pMethods = &sqlite3FreeRTOSIoMethod;
 
+  if( pOutFlags ){
+    *pOutFlags = flags;
+  }
   return SQLITE_OK;
 }
 
@@ -947,10 +938,9 @@ static int xFreeRTOSDelete(
 ){
   FRESULT rc;
 
-  UNUSED_PARAMETER(pVfs);
-  UNUSED_PARAMETER(syncDir);
+  (void)(pVfs);
+  (void)(syncDir);
 
-  SimulateIOError(return SQLITE_IOERR_DELETE);
 
   // Delete file
   rc = remove(zFilename);
@@ -981,15 +971,16 @@ static int xFreeRTOSAccess(
 ){
   FRESULT rc;
   struct stat fi;
-  UNUSED_PARAMETER(pVfs);
+  (void)(pVfs);
 
-  SimulateIOError( return SQLITE_IOERR_ACCESS; );
   configPRINTF("ACCESS name=%s, flags=%x, pResOut=%p\n", zFilename, flags, pResOut);
 
   assert( pResOut );
 
   rc = stat(zFilename, &fi);
 
+  *pResOut = ( rc == 0 ) ? 1 : 0;
+/*
   switch( flags ){
     case SQLITE_ACCESS_READ:
     case SQLITE_ACCESS_EXISTS:
@@ -998,7 +989,7 @@ static int xFreeRTOSAccess(
       break;
     default:
       assert(!"Invalid flags argument");
-  }
+  }*/
 
   configPRINTF("ACCESS name=%s, pResOut=%p, *pResOut=%d, rc=SQLITE_OK\n",
            zFilename, pResOut, *pResOut);
@@ -1017,10 +1008,9 @@ static int xFreeRTOSFullPathname(
   int nOut,                     /* Size of output buffer in bytes */
   char *zOut                    /* Output nbuffer */
 ){
-  SimulateIOError( return SQLITE_ERROR );
 
   assert( pVfs->mxPathname==MAXPATHNAME);
-  UNUSED_PARAMETER(pVfs);
+  (void)(pVfs);
 
   zOut[nOut-1] = '\0';
   if( zPath[1]==':' ){
@@ -1049,34 +1039,34 @@ static int xFreeRTOSFullPathname(
 ** this functionality, so the following functions are no-ops.
 */
 static void *pxFreeRTOSDlOpen(sqlite3_vfs *pVfs, const char *zPath){
-  UNUSED_PARAMETER(pVfs);
-  UNUSED_PARAMETER(zPath);
+  (void)(pVfs);
+  (void)(zPath);
   return 0;
 }
 
 static void xFreeRTOSDlError(sqlite3_vfs *pVfs, int nByte, char *zErrMsg){
-  UNUSED_PARAMETER(pVfs);
+  (void)(pVfs);
   sqlite3_snprintf(nByte, zErrMsg, "Loadable extensions are not supported");
   zErrMsg[nByte-1] = '\0';
 }
 
 static void (*pxFreeRTOSDlSym(sqlite3_vfs *pVfs, void *pH, const char *z))(void){
-  UNUSED_PARAMETER(pVfs);
-  UNUSED_PARAMETER(pH);
-  UNUSED_PARAMETER(z);
+  (void)(pVfs);
+  (void)(pH);
+  (void)(z);
   return 0;
 }
 
 static void xFreeRTOSDlClose(sqlite3_vfs *pVfs, void *pHandle){
-  UNUSED_PARAMETER(pVfs);
-  UNUSED_PARAMETER(pHandle);
+  (void)(pVfs);
+  (void)(pHandle);
 }
 
 /*
 ** Write up to nBuf bytes of randomness into zBuf.
 */
 static int xFreeRTOSRandomness(sqlite3_vfs *pVfs, int nBuf, char *zBuf){
-  UNUSED_PARAMETER(pVfs);
+  (void)(pVfs);
   os_get_random((unsigned char*)zBuf, nBuf);
   return SQLITE_OK;
 }
@@ -1087,7 +1077,7 @@ static int xFreeRTOSRandomness(sqlite3_vfs *pVfs, int nBuf, char *zBuf){
 */
 static int xFreeRTOSSleep(sqlite3_vfs *pVfs, int microsec){
   int milliseconds = (microsec + 999) / 1000;
-  UNUSED_PARAMETER(pVfs);
+  (void)(pVfs);
 
   vTaskDelay((TickType_t)milliseconds);
   return milliseconds * 1000;
@@ -1123,7 +1113,7 @@ static int xFreeRTOSCurrentTimeInt64(sqlite3_vfs *pVfs, sqlite3_int64 *prNow){
 static int xFreeRTOSCurrentTime(sqlite3_vfs *pVfs, double *prNow){
 	  sqlite3_int64 i = 0;
 	  int rc;
-  UNUSED_PARAMETER(pVfs);
+  (void)(pVfs);
 	  rc = xFreeRTOSCurrentTimeInt64(0, &i);
 	  *prNow = i/86400000.0;
 	  return rc;
@@ -1160,9 +1150,9 @@ static int xFreeRTOSCurrentTime(sqlite3_vfs *pVfs, double *prNow){
 ** sqlite3_errmsg(), possibly making IO errors easier to debug.
 */
 static int xFreeRTOSGetLastError(sqlite3_vfs *pVfs, int nBuf, char *zBuf){
-  UNUSED_PARAMETER(pVfs);
-  UNUSED_PARAMETER(nBuf);
-  UNUSED_PARAMETER(zBuf);
+  (void)(pVfs);
+  (void)(nBuf);
+  (void)(zBuf);
   return 0;
 }
 
@@ -1176,7 +1166,7 @@ static int xFreeRTOSGetLastError(sqlite3_vfs *pVfs, int nBuf, char *zBuf){
 
 
 static sqlite3_vfs FreeRTOSVfs = {
-    3,                  		/* iVersion */
+    1,                  		/* iVersion */
     sizeof(FatFsFile),			/* szOsFile */
 	MAXPATHNAME,				/* mxPathname */
     0,                  		/* pNext */
@@ -1193,11 +1183,6 @@ static sqlite3_vfs FreeRTOSVfs = {
 	xFreeRTOSRandomness,    	/* xRandomness */
 	xFreeRTOSSleep,         	/* xSleep */
 	xFreeRTOSCurrentTime,   	/* xCurrentTime */
-	xFreeRTOSGetLastError,  	/* xGetLastError */
-	xFreeRTOSCurrentTimeInt64,	/* xCurrentTimeInt64 */
-    NULL,            			/* xSetSystemCall */
-    NULL,            			/* xGetSystemCall */
-    NULL,            			/* xNextSystemCall */
 };
 
 

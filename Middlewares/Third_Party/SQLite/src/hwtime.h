@@ -69,7 +69,7 @@
 
 #else
 
-  #error Need implementation of sqlite3Hwtime() for your platform.
+  //#error Need implementation of sqlite3Hwtime() for your platform.
 
   /*
   ** To compile without implementing sqlite3Hwtime() for your platform,

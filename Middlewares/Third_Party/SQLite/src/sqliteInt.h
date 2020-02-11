@@ -14,7 +14,7 @@
 */
 #ifndef SQLITEINT_H
 #define SQLITEINT_H
-#define _HAVE_SQLITE_CONFIG_H
+//#define _HAVE_SQLITE_CONFIG_H
 /* Special Comments:
 **
 ** Some comments have special meaning to the tools that measure test
