@@ -63,7 +63,7 @@ test_jws_none(struct lws_context *context)
 	if (lws_jws_parse_jose(&jose, map.buf[LJWS_JOSE],
 			       map.len[LJWS_JOSE],
 			       (char *)lws_concat_temp(temp, temp_len),
-			       &temp_len) < 0) {
+			       &temp_len) < 0 || !jose.alg) {
 		lwsl_err("%s: JOSE parse failed\n", __func__);
 		goto bail;
 	}
@@ -131,7 +131,8 @@ test_jws_HS256(struct lws_context *context)
 
 	/* parse the JOSE header */
 
-	if (lws_jws_parse_jose(&jose, test1, strlen(test1), temp, &temp_len) < 0) {
+	if (lws_jws_parse_jose(&jose, test1, strlen(test1), temp, &temp_len) < 0 ||
+			!jose.alg) {
 		lwsl_err("%s: JOSE parse failed\n", __func__);
 		goto bail;
 	}
@@ -535,7 +536,7 @@ bail1:
 	lws_jose_destroy(&jose);
 
 bail:
-	lwsl_notice("%s: selftest %s\n", __func__, ret < 0 ? "FAIL" : "OK");
+	lwsl_notice("%s: selftest %s\n", __func__, ret ? "FAIL" : "OK");
 
 	return ret;
 }
@@ -692,7 +693,7 @@ bail1:
 	lws_jose_destroy(&jose);
 
 bail:
-	lwsl_notice("%s: selftest %s\n", __func__, ret < 0 ? "FAIL" : "OK");
+	lwsl_notice("%s: selftest %s\n", __func__, ret ? "FAIL" : "OK");
 
 	return ret;
 }

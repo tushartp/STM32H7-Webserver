@@ -1,25 +1,30 @@
 /*
- * ws protocol handler plugin for "generic sessions"
+ * libwebsockets - small server side websockets and web server implementation
  *
- * Copyright (C) 2010-2019 Andy Green <andy@warmcat.com>
+ * Copyright (C) 2010 - 2019 Andy Green <andy@warmcat.com>
  *
- * This program is free software; you can redistribute it and/or
- * modify it under the terms of the GNU Lesser General Public
- * License as published by the Free Software Foundation:
- * version 2.1 of the License.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- * This library is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- * General Public License for more details.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
- * You should have received a copy of the GNU General Public
- * License along with this library; if not, write to the Free Software
- * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- * MA  02110-1301  USA
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
  */
 
 #include "private-lwsgs.h"
+
+#if defined(LWS_WITH_SMTP)
 
 static int
 lwsgs_smtp_client_done(struct lws_smtp_email *e, void *buf, size_t len)
@@ -52,6 +57,7 @@ lwsgs_smtp_client_done_sentvfy(struct lws_smtp_email *e, void *buf, size_t len)
 
 	return 0;
 }
+#endif
 
 /* handle account confirmation links */
 
@@ -404,7 +410,9 @@ lwsgs_handler_forgot_pw_form(struct per_vhost_data__gs *vhd,
 	char esc[96], esc1[96], esc2[96], esc3[96], esc4[96];
 	char s[LWSGS_EMAIL_CONTENT_SIZE];
 	unsigned char sid_rand[32];
+#if defined(LWS_WITH_SMTP)
 	lws_smtp_email_t *em;
+#endif
 	struct lwsgs_user u;
 	lwsgw_hash hash;
 	int n;
@@ -486,7 +494,7 @@ lwsgs_handler_forgot_pw_form(struct per_vhost_data__gs *vhd,
 		lws_sql_purify(esc2, u.email, sizeof(esc2) - 1),
 		lws_sql_purify(esc3, u.username, sizeof(esc3) - 1),
 		lws_sql_purify(esc4, pss->ip, sizeof(esc4) - 1));
-	n += lws_snprintf(s + n, sizeof(s) - n,
+	lws_snprintf(s + n, sizeof(s) - n,
 		  "%s/lwsgs-forgot?token=%s"
 		   "&good=%s"
 		   "&bad=%s\n\n"
@@ -506,15 +514,16 @@ lwsgs_handler_forgot_pw_form(struct per_vhost_data__gs *vhd,
 		vhd->email_contact_person);
 
 	puts(s);
+#if defined(LWS_WITH_SMTP)
 
-	em = lws_smtp_client_alloc_email_helper(s, n, vhd->email_from, u.email,
+	em = lws_smtpc_alloc_email_helper(s, n, vhd->email_from, u.email,
 						u.username, strlen(u.username),
 						vhd, lwsgs_smtp_client_done);
 	if (!em)
 		return 1;
-	if (lws_smtp_client_add_email(vhd->smtp_client, em))
+	if (lws_smtpc_add_email(vhd->smtp_client, em))
 		return 1;
-
+#endif
 	return 0;
 }
 
@@ -527,7 +536,9 @@ lwsgs_handler_register_form(struct per_vhost_data__gs *vhd,
 	char esc[96], esc1[96], esc2[96], esc3[96], esc4[96];
 	char s[LWSGS_EMAIL_CONTENT_SIZE];
 	unsigned char sid_rand[32];
+#if defined(LWS_WITH_SMTP)
 	lws_smtp_email_t *em;
+#endif
 	struct lwsgs_user u;
 	lwsgw_hash hash;
 	size_t n;
@@ -633,7 +644,8 @@ lwsgs_handler_register_form(struct per_vhost_data__gs *vhd,
 		vhd->email_confirm_url, hash.id,
 		vhd->email_contact_person);
 
-	em = lws_smtp_client_alloc_email_helper(s, n, vhd->email_from,
+#if defined(LWS_WITH_SMTP)
+	em = lws_smtpc_alloc_email_helper(s, n, vhd->email_from,
 				lws_spa_get_string(pss->spa, FGS_EMAIL),
 				lws_spa_get_string(pss->spa, FGS_USERNAME),
 				strlen(lws_spa_get_string(pss->spa, FGS_USERNAME)),
@@ -641,8 +653,11 @@ lwsgs_handler_register_form(struct per_vhost_data__gs *vhd,
 	if (!em)
 		return 1;
 
-	if (lws_smtp_client_add_email(vhd->smtp_client, em))
+	if (lws_smtpc_add_email(vhd->smtp_client, em))
 		return 1;
+#else
+	(void)n;
+#endif
 
 	return 0;
 }

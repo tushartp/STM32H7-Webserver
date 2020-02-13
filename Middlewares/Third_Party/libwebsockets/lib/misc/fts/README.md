@@ -134,7 +134,7 @@ Indexing time|123ms
 Peak alloc|3MiB
 Serialization time|1ms
 Trie File size|1.4MiB
- 
+
 
 Once it's generated, querying the trie file is very inexpensive, even when there
 are lots of results.

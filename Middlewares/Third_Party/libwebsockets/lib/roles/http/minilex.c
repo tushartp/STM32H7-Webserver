@@ -5,7 +5,7 @@
  *
  * Copyright (C)2011-2014 Andy Green <andy@warmcat.com>
  *
- * Licensed under LGPL2
+ * Licensed under MIT
  *
  * Usage: gcc minilex.c -o minilex && ./minilex > lextable.h
  *
@@ -77,7 +77,7 @@ int lextable_decode(int pos, char c)
 int main(void)
 {
 	int n = 0;
-	int m = 0;
+	int m;
 	int prev;
 	char c;
 	int walk;

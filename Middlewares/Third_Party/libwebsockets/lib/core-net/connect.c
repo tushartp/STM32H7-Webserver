@@ -1,59 +1,48 @@
 /*
  * libwebsockets - small server side websockets and web server implementation
  *
- * Copyright (C) 2010-2018 Andy Green <andy@warmcat.com>
+ * Copyright (C) 2010 - 2019 Andy Green <andy@warmcat.com>
  *
- *  This library is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU Lesser General Public
- *  License as published by the Free Software Foundation:
- *  version 2.1 of the License.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- *  This library is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *  Lesser General Public License for more details.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
- *  You should have received a copy of the GNU Lesser General Public
- *  License along with this library; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- *  MA  02110-1301  USA
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
  */
 
-#include "core/private.h"
+#include <libwebsockets.h>
+#include "private-lib-core.h"
 
-void
-lws_client_stash_destroy(struct lws *wsi)
-{
-	if (!wsi || !wsi->stash)
-		return;
-
-	lws_free_set_NULL(wsi->stash->address);
-	lws_free_set_NULL(wsi->stash->path);
-	lws_free_set_NULL(wsi->stash->host);
-	lws_free_set_NULL(wsi->stash->origin);
-	lws_free_set_NULL(wsi->stash->protocol);
-	lws_free_set_NULL(wsi->stash->method);
-	lws_free_set_NULL(wsi->stash->iface);
-	lws_free_set_NULL(wsi->stash->alpn);
-
-	lws_free_set_NULL(wsi->stash);
-}
-
-LWS_VISIBLE struct lws *
+struct lws *
 lws_client_connect_via_info(const struct lws_client_connect_info *i)
 {
+	const char *local = i->protocol;
 	struct lws *wsi, *safe = NULL;
 	const struct lws_protocols *p;
-	const char *local = i->protocol;
-#if LWS_MAX_SMP > 1
-	int n, tid;
-#endif
+	const char *cisin[CIS_COUNT];
+	int tid = 0, n, m;
+	size_t size;
+	char *pc;
 
 	if (i->context->requested_kill)
 		return NULL;
 
 	if (!i->context->protocol_init_done)
-		lws_protocol_init(i->context);
+		if (lws_protocol_init(i->context))
+			return NULL;
+
 	/*
 	 * If we have .local_protocol_name, use it to select the local protocol
 	 * handler to bind to.  Otherwise use .protocol if http[s].
@@ -61,19 +50,41 @@ lws_client_connect_via_info(const struct lws_client_connect_info *i)
 	if (i->local_protocol_name)
 		local = i->local_protocol_name;
 
+	if ((i->ssl_connection & LCCSCF_USE_SSL) &&
+	    lws_tls_restrict_borrow(i->context))
+		return NULL;
+
+	lws_stats_bump(&i->context->pt[tid], LWSSTATS_C_CONNS_CLIENT, 1);
+
 	/* PHASE 1: create a bare wsi */
 
 	wsi = lws_zalloc(sizeof(struct lws), "client wsi");
 	if (wsi == NULL)
 		goto bail;
 
+
+
 	wsi->context = i->context;
 	wsi->desc.sockfd = LWS_SOCK_INVALID;
+	wsi->seq = i->seq;
+	wsi->flags = i->ssl_connection;
+	if (i->retry_and_idle_policy)
+		wsi->retry_policy = i->retry_and_idle_policy;
+	else
+		wsi->retry_policy = &i->context->default_retry;
+
+#if defined(LWS_WITH_DETAILED_LATENCY)
+	if (i->context->detailed_latency_cb)
+		wsi->detlat.earliest_write_req_pre_write = lws_now_usecs();
+#endif
 
 	wsi->vhost = NULL;
-	if (!i->vhost)
-		lws_vhost_bind_wsi(i->context->vhost_list, wsi);
-	else
+	if (!i->vhost) {
+		struct lws_vhost *v = i->context->vhost_list;
+		if (v && !strcmp(v->name, "system"))
+			v = v->vhost_next;
+		lws_vhost_bind_wsi(v, wsi);
+	} else
 		lws_vhost_bind_wsi(i->vhost, wsi);
 
 	if (!wsi->vhost) {
@@ -82,15 +93,17 @@ lws_client_connect_via_info(const struct lws_client_connect_info *i)
 		goto bail;
 	}
 
+#if LWS_MAX_SMP > 1
+	tid = wsi->vhost->protocols[0].callback(wsi, LWS_CALLBACK_GET_THREAD_ID,
+						NULL, NULL, 0);
+#endif
+
 	/*
 	 * PHASE 2: if SMP, bind the client to whatever tsi the current thread
 	 * represents
 	 */
 
 #if LWS_MAX_SMP > 1
-	tid = wsi->vhost->protocols[0].callback(wsi, LWS_CALLBACK_GET_THREAD_ID,
-						NULL, NULL, 0);
-
 	lws_context_lock(i->context, "client find tsi");
 
 	for (n = 0; n < i->context->count_threads; n++)
@@ -98,6 +111,9 @@ lws_client_connect_via_info(const struct lws_client_connect_info *i)
 			lwsl_info("%s: client binds to caller tsi %d\n",
 				  __func__, n);
 			wsi->tsi = n;
+#if defined(LWS_WITH_DETAILED_LATENCY)
+			wsi->detlat.tsi = n;
+#endif
 			break;
 		}
 
@@ -133,17 +149,24 @@ lws_client_connect_via_info(const struct lws_client_connect_info *i)
 	wsi->user_space = NULL;
 	wsi->pending_timeout = NO_PENDING_TIMEOUT;
 	wsi->position_in_fds_table = LWS_NO_FDS_POS;
-	wsi->c_port = i->port;
+	wsi->ocport = wsi->c_port = i->port;
+	wsi->sys_tls_client_cert = i->sys_tls_client_cert;
+
+#if defined(LWS_ROLE_H2)
+	wsi->txc.manual_initial_tx_credit = (int32_t)i->manual_initial_tx_credit;
+#endif
 
 	wsi->protocol = &wsi->vhost->protocols[0];
 	wsi->client_pipeline = !!(i->ssl_connection & LCCSCF_PIPELINE);
+	wsi->client_no_follow_redirect = !!(i->ssl_connection &
+					    LCCSCF_HTTP_NO_FOLLOW_REDIRECT);
 
 	/*
 	 * PHASE 5: handle external user_space now, generic alloc is done in
 	 * role finalization
 	 */
 
-	if (!wsi->user_space && i->userdata) {
+	if (i->userdata) {
 		wsi->user_space_externally_allocated = 1;
 		wsi->user_space = i->userdata;
 	}
@@ -153,6 +176,12 @@ lws_client_connect_via_info(const struct lws_client_connect_info *i)
 		p = lws_vhost_name_to_protocol(wsi->vhost, local);
 		if (p)
 			lws_bind_protocol(wsi, p, __func__);
+		else
+			lwsl_err("%s: unknown protocol %s\n", __func__, local);
+
+		lwsl_info("%s: wsi %p: %s %s entry\n",
+			    __func__, wsi, wsi->role_ops->name,
+			    wsi->protocol ? wsi->protocol->name : "none");
 	}
 
 	/*
@@ -185,45 +214,44 @@ lws_client_connect_via_info(const struct lws_client_connect_info *i)
 	 * with no relationship to http or ah
 	 */
 
-	wsi->stash = lws_zalloc(sizeof(*wsi->stash), "client stash");
+	cisin[CIS_ADDRESS]	= i->address;
+	cisin[CIS_PATH]		= i->path;
+	cisin[CIS_HOST]		= i->host;
+	cisin[CIS_ORIGIN]	= i->origin;
+	cisin[CIS_PROTOCOL]	= i->protocol;
+	cisin[CIS_METHOD]	= i->method;
+	cisin[CIS_IFACE]	= i->iface;
+	cisin[CIS_ALPN]		= i->alpn;
+
+	size = sizeof(*wsi->stash);
+
+	/*
+	 * Let's overallocate the stash object with space for all the args
+	 * in one hit.
+	 */
+	for (n = 0; n < CIS_COUNT; n++)
+		if (cisin[n])
+			size += strlen(cisin[n]) + 1;
+
+	wsi->stash = lws_malloc(size, "client stash");
 	if (!wsi->stash) {
 		lwsl_err("%s: OOM\n", __func__);
 		goto bail1;
 	}
+	/* all the pointers default to NULL, but no need to zero the args */
+	memset(wsi->stash, 0, sizeof(*wsi->stash));
 
-	wsi->stash->address = lws_strdup(i->address);
-	wsi->stash->path = lws_strdup(i->path);
-	wsi->stash->host = lws_strdup(i->host);
-	wsi->stash->opaque_user_data = i->opaque_user_data;
+	wsi->opaque_user_data = wsi->stash->opaque_user_data =
+		i->opaque_user_data;
+	pc = (char *)&wsi->stash[1];
 
-	if (!wsi->stash->address || !wsi->stash->path || !wsi->stash->host)
-		goto bail1;
-
-	if (i->origin) {
-		wsi->stash->origin = lws_strdup(i->origin);
-		if (!wsi->stash->origin)
-			goto bail1;
-	}
-	if (i->protocol) {
-		wsi->stash->protocol = lws_strdup(i->protocol);
-		if (!wsi->stash->protocol)
-			goto bail1;
-	}
-	if (i->method) {
-		wsi->stash->method = lws_strdup(i->method);
-		if (!wsi->stash->method)
-			goto bail1;
-	}
-	if (i->iface) {
-		wsi->stash->iface = lws_strdup(i->iface);
-		if (!wsi->stash->iface)
-			goto bail1;
-	}
-	if (i->alpn) {
-		wsi->stash->alpn = lws_strdup(i->alpn);
-		if (!wsi->stash->alpn)
-			goto bail1;
-	}
+	for (n = 0; n < CIS_COUNT; n++)
+		if (cisin[n]) {
+			wsi->stash->cis[n] = pc;
+			m = (int)strlen(cisin[n]) + 1;
+			memcpy(pc, cisin[n], m);
+			pc += m;
+		}
 
 	/*
 	 * at this point user callbacks like
@@ -270,13 +298,17 @@ lws_client_connect_via_info(const struct lws_client_connect_info *i)
 
 	/* PHASE 8: notify protocol with role-specific connected callback */
 
-	lwsl_debug("%s: wsi %p: cb %d to %s %s\n", __func__,
-			wsi, wsi->role_ops->adoption_cb[0],
-			wsi->role_ops->name, wsi->protocol->name);
+	/* raw socket doesn't want this... not sure if any want this */
+	if (wsi->role_ops != &role_ops_raw_skt) {
+		lwsl_debug("%s: wsi %p: cb %d to %s %s\n", __func__,
+				wsi, wsi->role_ops->adoption_cb[0],
+				wsi->role_ops->name, wsi->protocol->name);
 
-	wsi->protocol->callback(wsi,
-			wsi->role_ops->adoption_cb[0],
-			wsi->user_space, NULL, 0);
+		wsi->protocol->callback(wsi,
+				wsi->role_ops->adoption_cb[0],
+				wsi->user_space, NULL, 0);
+	}
+
 
 #if defined(LWS_WITH_HUBBUB)
 	if (i->uri_replace_to)
@@ -285,21 +317,66 @@ lws_client_connect_via_info(const struct lws_client_connect_info *i)
 					     i->uri_replace_to);
 #endif
 
-	if (i->method && !strcmp(i->method, "RAW"))
+	if (i->method && (!strcmp(i->method, "RAW"))) {
+
+#if defined(LWS_WITH_TLS)
+
+		wsi->tls.ssl = NULL;
+
+		if (wsi->tls.use_ssl & LCCSCF_USE_SSL) {
+
+			/* we can retry this... just cook the SSL BIO the first time */
+
+			if (lws_ssl_client_bio_create(wsi) < 0) {
+				lwsl_err("%s: bio_create failed\n", __func__);
+				goto bail3;
+			}
+
+#if !defined(LWS_WITH_SYS_ASYNC_DNS)
+			if (wsi->tls.use_ssl & LCCSCF_USE_SSL) {
+				n = lws_ssl_client_connect1(wsi);
+				if (!n)
+					return wsi;
+				if (n < 0) {
+					lwsl_err("%s: lws_ssl_client_connect1 failed\n", __func__);
+					goto bail3;
+				}
+			}
+#endif
+		}
+
+
+		/* fallthru */
+#endif
+
 		lws_http_client_connect_via_info2(wsi);
+	}
 
 	return wsi;
 
+#if defined(LWS_WITH_TLS)
+bail3:
+	lws_close_free_wsi(wsi, LWS_CLOSE_STATUS_NOSTATUS, "tls start fail");
+
+	return NULL;
+#endif
+
 bail1:
-	lws_client_stash_destroy(wsi);
+	lws_free_set_NULL(wsi->stash);
 
 bail:
 	lws_free(wsi);
 #if defined(LWS_ROLE_H1) || defined(LWS_ROLE_H2)
 bail2:
 #endif
+
+	if (i->ssl_connection & LCCSCF_USE_SSL)
+		lws_tls_restrict_return(i->context);
+
 	if (i->pwsi)
 		*i->pwsi = NULL;
+
+	lws_stats_bump(&i->context->pt[tid], LWSSTATS_C_CONNS_CLIENT_FAILED, 1);
 
 	return NULL;
 }

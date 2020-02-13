@@ -3,23 +3,26 @@
  *
  * Copyright (C) 2010-2019 Andy Green <andy@warmcat.com>
  *
- *  This library is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU Lesser General Public
- *  License as published by the Free Software Foundation:
- *  version 2.1 of the License.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- *  This library is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *  Lesser General Public License for more details.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
- *  You should have received a copy of the GNU Lesser General Public
- *  License along with this library; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- *  MA  02110-1301  USA
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
  */
 
-#include "core/private.h"
+#include "private-lib-core.h"
 
 #ifdef LWS_HAVE_SYS_TYPES_H
 #include <sys/types.h>
@@ -39,36 +42,39 @@ static void (*lwsl_emit)(int level, const char *line)
 	;
 #ifndef LWS_PLAT_OPTEE
 static const char * const log_level_names[] = {
-	"ERR",
-	"WARN",
-	"NOTICE",
-	"INFO",
-	"DEBUG",
-	"PARSER",
-	"HEADER",
-	"EXTENSION",
-	"CLIENT",
-	"LATENCY",
-	"USER",
-	"THREAD",
+	"E",
+	"W",
+	"N",
+	"I",
+	"D",
+	"P",
+	"H",
+	"EXT",
+	"C",
+	"L",
+	"U",
+	"T",
 	"?",
 	"?"
 };
 #endif
 
-LWS_VISIBLE int
+int
 lwsl_timestamp(int level, char *p, int len)
 {
 #ifndef LWS_PLAT_OPTEE
-#ifndef _WIN32_WCE
-	time_t o_now = time(NULL);
-#endif
+	time_t o_now;
 	unsigned long long now;
+	struct timeval tv;
 	struct tm *ptm = NULL;
 #ifndef WIN32
 	struct tm tm;
 #endif
 	int n;
+
+	gettimeofday(&tv, NULL);
+	o_now = tv.tv_sec;
+	now = ((unsigned long long)tv.tv_sec * 10000) + (tv.tv_usec / 100);
 
 #ifndef _WIN32_WCE
 #ifdef WIN32
@@ -82,7 +88,7 @@ lwsl_timestamp(int level, char *p, int len)
 	for (n = 0; n < LLL_COUNT; n++) {
 		if (level != (1 << n))
 			continue;
-		now = lws_time_in_microseconds() / 100;
+
 		if (ptm)
 			n = lws_snprintf(p, len,
 				"[%04d/%02d/%02d %02d:%02d:%02d:%04d] %s: ",
@@ -118,13 +124,13 @@ static const char * const colours[] = {
 	"[33m", /* LLL_EXT */
 	"[33m", /* LLL_CLIENT */
 	"[33;1m", /* LLL_LATENCY */
-	"[30;1m", /* LLL_USER */
+       "[0;1m", /* LLL_USER */
 	"[31m", /* LLL_THREAD */
 };
 
 static char tty;
 
-LWS_VISIBLE void
+void
 lwsl_emit_stderr(int level, const char *line)
 {
 	char buf[50];
@@ -147,7 +153,7 @@ lwsl_emit_stderr(int level, const char *line)
 		configPRINTF( "%s%s", buf, line);
 }
 
-LWS_VISIBLE void
+void
 lwsl_emit_stderr_notimestamp(int level, const char *line)
 {
 	int n, m = LWS_ARRAY_SIZE(colours) - 1;
@@ -171,9 +177,13 @@ lwsl_emit_stderr_notimestamp(int level, const char *line)
 #endif
 
 #if !(defined(LWS_PLAT_OPTEE) && !defined(LWS_WITH_NETWORK))
-LWS_VISIBLE void _lws_logv(int filter, const char *format, va_list vl)
+void _lws_logv(int filter, const char *format, va_list vl)
 {
+#if LWS_MAX_SMP == 1
 	static char buf[256];
+#else
+	char buf[1024];
+#endif
 	int n;
 
 	if (!(log_level & filter))
@@ -195,7 +205,7 @@ LWS_VISIBLE void _lws_logv(int filter, const char *format, va_list vl)
 	lwsl_emit(filter, buf);
 }
 
-LWS_VISIBLE void _lws_log(int filter, const char *format, ...)
+void _lws_log(int filter, const char *format, ...)
 {
 	va_list ap;
 
@@ -204,7 +214,7 @@ LWS_VISIBLE void _lws_log(int filter, const char *format, ...)
 	va_end(ap);
 }
 #endif
-LWS_VISIBLE void lws_set_log_level(int level,
+void lws_set_log_level(int level,
 				   void (*func)(int level, const char *line))
 {
 	log_level = level;
@@ -212,12 +222,12 @@ LWS_VISIBLE void lws_set_log_level(int level,
 		lwsl_emit = func;
 }
 
-LWS_VISIBLE int lwsl_visible(int level)
+int lwsl_visible(int level)
 {
 	return log_level & level;
 }
 
-LWS_VISIBLE void
+void
 lwsl_hexdump_level(int hexdump_level, const void *vbuf, size_t len)
 {
 	unsigned char *buf = (unsigned char *)vbuf;
@@ -243,14 +253,14 @@ lwsl_hexdump_level(int hexdump_level, const void *vbuf, size_t len)
 		unsigned int start = n, m;
 		char line[80], *p = line;
 
-		p += snprintf(p, 10, "%04X: ", start);
+		p += lws_snprintf(p, 10, "%04X: ", start);
 
 		for (m = 0; m < 16 && n < len; m++)
-			p += snprintf(p, 5, "%02X ", buf[n++]);
+			p += lws_snprintf(p, 5, "%02X ", buf[n++]);
 		while (m++ < 16)
-			p += snprintf(p, 5, "   ");
+			p += lws_snprintf(p, 5, "   ");
 
-		p += snprintf(p, 6, "   ");
+		p += lws_snprintf(p, 6, "   ");
 
 		for (m = 0; m < 16 && (start + m) < len; m++) {
 			if (buf[start + m] >= ' ' && buf[start + m] < 127)
@@ -270,7 +280,7 @@ lwsl_hexdump_level(int hexdump_level, const void *vbuf, size_t len)
 	_lws_log(hexdump_level, "\n");
 }
 
-LWS_VISIBLE void
+void
 lwsl_hexdump(const void *vbuf, size_t len)
 {
 #if defined(_DEBUG)

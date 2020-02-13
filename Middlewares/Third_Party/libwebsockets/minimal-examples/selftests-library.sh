@@ -57,18 +57,18 @@ dotest() {
 	T=$3
 	(
 		{
-			/usr/bin/time -p $1/lws-$MYTEST $4 $5 $6 $7 $8 $9 > $2/$MYTEST/$T.log 2> $2/$MYTEST/$T.log ;
+			/usr/bin/time -p /usr/bin/valgrind -q $1/lws-$MYTEST $4 $5 $6 $7 $8 $9 > $2/$MYTEST/$T.log 2> $2/$MYTEST/$T.log ;
 			echo $? > $2/$MYTEST/$T.result
 		} 2> $2/$MYTEST/$T.time >/dev/null
 	) >/dev/null 2> /dev/null &
 	W=$!
 	WT=0
-	while [ $WT -le 420 ] ; do
+	while [ $WT -le 820 ] ; do
 		kill -0 $W 2>/dev/null
 		if [ $? -ne 0 ] ; then
 			WT=10000
 		else
-			if [ $WT -ge 400 ] ; then
+			if [ $WT -ge 800 ] ; then
 				WT=10000
 				kill $W 2>/dev/null
 				wait $W 2>/dev/null

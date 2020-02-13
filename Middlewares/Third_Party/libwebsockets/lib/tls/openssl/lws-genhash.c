@@ -1,22 +1,25 @@
-/*
- * libwebsockets - generic hash and HMAC api hiding the backend
+ /*
+ * libwebsockets - small server side websockets and web server implementation
  *
- * Copyright (C) 2017 Andy Green <andy@warmcat.com>
+ * Copyright (C) 2010 - 2019 Andy Green <andy@warmcat.com>
  *
- *  This library is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU Lesser General Public
- *  License as published by the Free Software Foundation:
- *  version 2.1 of the License.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- *  This library is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *  Lesser General Public License for more details.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
- *  You should have received a copy of the GNU Lesser General Public
- *  License along with this library; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- *  MA  02110-1301  USA
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
  *
  *  lws_genhash provides a hash / hmac abstraction api in lws that works the
  *  same whether you are using openssl or mbedtls hash functions underneath.
@@ -37,6 +40,9 @@ lws_genhash_init(struct lws_genhash_ctx *ctx, enum lws_genhash_types type)
 		return 1;
 
 	switch (ctx->type) {
+	case LWS_GENHASH_TYPE_MD5:
+		ctx->evp_type = EVP_md5();
+		break;
 	case LWS_GENHASH_TYPE_SHA1:
 		ctx->evp_type = EVP_sha1();
 		break;
@@ -87,12 +93,20 @@ lws_genhash_destroy(struct lws_genhash_ctx *ctx, void *result)
 	return ret;
 }
 
+
 int
 lws_genhmac_init(struct lws_genhmac_ctx *ctx, enum lws_genhmac_types type,
 		 const uint8_t *key, size_t key_len)
 {
-	EVP_PKEY *pkey;
+#if defined(LWS_HAVE_HMAC_CTX_new)
+	ctx->ctx = HMAC_CTX_new();
+	if (!ctx->ctx)
+		return -1;
+#else
+	HMAC_CTX_init(&ctx->ctx);
+#endif
 
+	ctx->evp_type = 0;
 	ctx->type = type;
 
 	switch (type) {
@@ -107,30 +121,34 @@ lws_genhmac_init(struct lws_genhmac_ctx *ctx, enum lws_genhmac_types type,
 		break;
 	default:
 		lwsl_err("%s: unknown HMAC type %d\n", __func__, type);
-		return -1;
+		goto bail;
 	}
 
-        ctx->ctx = EVP_MD_CTX_create();
-        if (!ctx->ctx)
-		return -1;
-
-        if (EVP_DigestInit_ex(ctx->ctx, ctx->evp_type, NULL) != 1)
-		return -1;
-
-        pkey = EVP_PKEY_new_mac_key(EVP_PKEY_HMAC, NULL, key, (int)key_len);
-
-        if (EVP_DigestSignInit(ctx->ctx, NULL, ctx->evp_type, NULL, pkey) != 1)
-		return -1;
-
-        EVP_PKEY_free(pkey);
+#if defined(LWS_HAVE_HMAC_CTX_new)
+        if (HMAC_Init_ex(ctx->ctx, key, (int)key_len, ctx->evp_type, NULL) != 1)
+#else
+        if (HMAC_Init_ex(&ctx->ctx, key, (int)key_len, ctx->evp_type, NULL) != 1)
+#endif
+        	goto bail;
 
 	return 0;
+
+bail:
+#if defined(LWS_HAVE_HMAC_CTX_new)
+	HMAC_CTX_free(ctx->ctx);
+#endif
+
+	return -1;
 }
 
 int
 lws_genhmac_update(struct lws_genhmac_ctx *ctx, const void *in, size_t len)
 {
-	 if (EVP_DigestSignUpdate(ctx->ctx, in, len) != 1)
+#if defined(LWS_HAVE_HMAC_CTX_new)
+	if (HMAC_Update(ctx->ctx, in, len) != 1)
+#else
+	if (HMAC_Update(&ctx->ctx, in, len) != 1)
+#endif
 		return -1;
 
 	return 0;
@@ -139,12 +157,18 @@ lws_genhmac_update(struct lws_genhmac_ctx *ctx, const void *in, size_t len)
 int
 lws_genhmac_destroy(struct lws_genhmac_ctx *ctx, void *result)
 {
-	size_t size = lws_genhmac_size(ctx->type);
-	int n = EVP_DigestSignFinal(ctx->ctx, result, &size);
+	unsigned int size = (unsigned int)lws_genhmac_size(ctx->type);
+#if defined(LWS_HAVE_HMAC_CTX_new)
+	int n = HMAC_Final(ctx->ctx, result, &size);
 
-	EVP_MD_CTX_destroy(ctx->ctx);
+	HMAC_CTX_free(ctx->ctx);
+#else
+	int n = HMAC_Final(&ctx->ctx, result, &size);
+#endif
+
 	if (n != 1)
 		return -1;
 
 	return 0;
 }
+

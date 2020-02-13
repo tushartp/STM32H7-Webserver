@@ -1,30 +1,30 @@
 /*
- * libwebsockets - JSON Web Encryption support
+ * libwebsockets - small server side websockets and web server implementation
  *
- * Copyright (C) 2018 Andy Green <andy@warmcat.com>
+ * Copyright (C) 2010 - 2019 Andy Green <andy@warmcat.com>
  *
- *  This library is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU Lesser General Public
- *  License as published by the Free Software Foundation:
- *  version 2.1 of the License.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- *  This library is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *  Lesser General Public License for more details.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
- *  You should have received a copy of the GNU Lesser General Public
- *  License along with this library; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- *  MA  02110-1301  USA
- *
- *
- * This supports RFC7516 JSON Web Encryption
- *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
  */
-#include "core/private.h"
-#include "jose/private.h"
-#include "jose/jwe/private.h"
+
+#include "private-lib-core.h"
+#include "private-lib-jose.h"
+#include "private-lib-jose-jwe.h"
 
 /*
  * Currently only support flattened or compact (implicitly single signature)
@@ -310,7 +310,7 @@ lws_jwa_concat_kdf(struct lws_jwe *jwe, int direct, uint8_t *out,
 	return 0;
 }
 
-LWS_VISIBLE void
+void
 lws_jwe_be64(uint64_t c, uint8_t *p8)
 {
 	int n;
@@ -319,24 +319,25 @@ lws_jwe_be64(uint64_t c, uint8_t *p8)
 		*p8++ = (uint8_t)((c >> n) & 0xff);
 }
 
-LWS_VISIBLE int
+int
 lws_jwe_auth_and_decrypt(struct lws_jwe *jwe, char *temp, int *temp_len)
 {
 	int valid_aescbc_hmac, valid_aesgcm;
+	char dotstar[96];
 
 	if (lws_jwe_parse_jose(&jwe->jose, jwe->jws.map.buf[LJWS_JOSE],
 			       jwe->jws.map.len[LJWS_JOSE],
 			       temp, temp_len) < 0) {
-		lwsl_err("%s: JOSE parse '%.*s' failed\n", __func__,
-				jwe->jws.map.len[LJWS_JOSE],
-				jwe->jws.map.buf[LJWS_JOSE]);
+		lws_strnncpy(dotstar, jwe->jws.map.buf[LJWS_JOSE],
+			     jwe->jws.map.len[LJWS_JOSE], sizeof(dotstar));
+		lwsl_err("%s: JOSE parse '%s' failed\n", __func__, dotstar);
 		return -1;
 	}
 
 	if (!jwe->jose.alg) {
-		lwsl_err("%s: no jose.alg: %.*s\n", __func__,
-				jwe->jws.map.len[LJWS_JOSE],
-				jwe->jws.map.buf[LJWS_JOSE]);
+		lws_strnncpy(dotstar, jwe->jws.map.buf[LJWS_JOSE],
+			     jwe->jws.map.len[LJWS_JOSE], sizeof(dotstar));
+		lwsl_err("%s: no jose.alg: %s\n", __func__, dotstar);
 
 		return -1;
 	}
@@ -379,7 +380,7 @@ lws_jwe_auth_and_decrypt(struct lws_jwe *jwe, char *temp, int *temp_len)
 
 	return -1;
 }
-LWS_VISIBLE int
+int
 lws_jwe_encrypt(struct lws_jwe *jwe, char *temp, int *temp_len)
 {
 	int valid_aescbc_hmac, valid_aesgcm, ot = *temp_len, ret = -1;
@@ -473,7 +474,7 @@ bail:
  *  - You can't emit Compact representation if there are multiple recipients
  */
 
-LWS_VISIBLE int
+int
 lws_jwe_render_compact(struct lws_jwe *jwe, char *out, size_t out_len)
 {
 	size_t orig = out_len;
@@ -491,7 +492,7 @@ lws_jwe_render_compact(struct lws_jwe *jwe, char *out, size_t out_len)
 			       jwe->jws.map.len[LJWS_JOSE], out, out_len);
 	if (n < 0 || (int)out_len == n) {
 		lwsl_info("%s: unable to encode JOSE\n", __func__);
-		return n;
+		return -1;
 	}
 
 	out += n;
@@ -502,7 +503,7 @@ lws_jwe_render_compact(struct lws_jwe *jwe, char *out, size_t out_len)
 			       jwe->jws.map.len[LJWE_EKEY], out, out_len);
 	if (n < 0 || (int)out_len == n) {
 		lwsl_info("%s: unable to encode EKEY\n", __func__);
-		return n;
+		return -1;
 	}
 
 	out += n;
@@ -512,7 +513,7 @@ lws_jwe_render_compact(struct lws_jwe *jwe, char *out, size_t out_len)
 			       jwe->jws.map.len[LJWE_IV], out, out_len);
 	if (n < 0 || (int)out_len == n) {
 		lwsl_info("%s: unable to encode IV\n", __func__);
-		return n;
+		return -1;
 	}
 
 	out += n;
@@ -523,7 +524,7 @@ lws_jwe_render_compact(struct lws_jwe *jwe, char *out, size_t out_len)
 			       jwe->jws.map.len[LJWE_CTXT], out, out_len);
 	if (n < 0 || (int)out_len == n) {
 		lwsl_info("%s: unable to encode CTXT\n", __func__);
-		return n;
+		return -1;
 	}
 
 	out += n;
@@ -533,7 +534,7 @@ lws_jwe_render_compact(struct lws_jwe *jwe, char *out, size_t out_len)
 			       jwe->jws.map.len[LJWE_ATAG], out, out_len);
 	if (n < 0 || (int)out_len == n) {
 		lwsl_info("%s: unable to encode ATAG\n", __func__);
-		return n;
+		return -1;
 	}
 
 	out += n;
@@ -543,7 +544,7 @@ lws_jwe_render_compact(struct lws_jwe *jwe, char *out, size_t out_len)
 	return orig - out_len;
 }
 
-LWS_VISIBLE int
+int
 lws_jwe_create_packet(struct lws_jwe *jwe, const char *payload, size_t len,
 		      const char *nonce, char *out, size_t out_len,
 		      struct lws_context *context)
@@ -717,7 +718,7 @@ static int protected_idx[] = {
  *     }
  */
 
-LWS_VISIBLE int
+int
 lws_jwe_render_flattened(struct lws_jwe *jwe, char *out, size_t out_len)
 {
 	char buf[3072], *p1, *end1, protected[128];
@@ -757,7 +758,9 @@ lws_jwe_render_flattened(struct lws_jwe *jwe, char *out, size_t out_len)
 
 	/* unprotected not supported atm */
 
-	p1 += lws_snprintf(p1, end1 - p1, "\",\n\"header\":%.*s", jlen, buf);
+	p1 += lws_snprintf(p1, end1 - p1, "\",\n\"header\":");
+	lws_strnncpy(p1, buf, jlen, end1 - p1);
+	p1 += strlen(p1);
 
 	for (m = 0; m < (int)LWS_ARRAY_SIZE(protected_en); m++)
 		if (jwe->jws.map.buf[protected_idx[m]]) {

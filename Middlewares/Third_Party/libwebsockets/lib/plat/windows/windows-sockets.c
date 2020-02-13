@@ -1,10 +1,34 @@
+/*
+ * libwebsockets - small server side websockets and web server implementation
+ *
+ * Copyright (C) 2010 - 2019 Andy Green <andy@warmcat.com>
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
+ */
+
 #ifndef _WINSOCK_DEPRECATED_NO_WARNINGS
 #define _WINSOCK_DEPRECATED_NO_WARNINGS
 #endif
-#include "core/private.h"
+#include "private-lib-core.h"
 
 
-LWS_VISIBLE int
+int
 lws_send_pipe_choked(struct lws *wsi)
 {	struct lws *wsi_eff;
 
@@ -43,11 +67,16 @@ lws_poll_listen_fd(struct lws_pollfd *fd)
 }
 
 int
-lws_plat_set_nonblocking(int fd)
+lws_plat_set_nonblocking(lws_sockfd_type fd)
 {
 	u_long optl = 1;
-
-	return !!ioctlsocket(fd, FIONBIO, &optl);
+	int result = !!ioctlsocket(fd, FIONBIO, &optl);
+	if (result)
+	{
+		int error = LWS_ERRNO;
+		lwsl_err("ioctlsocket FIONBIO 1 failed with error %d\n", error);
+	}
+	return result;
 }
 
 int
@@ -67,16 +96,22 @@ lws_plat_set_socket_options(struct lws_vhost *vhost, lws_sockfd_type fd,
 		/* enable keepalive on this socket */
 		optval = 1;
 		if (setsockopt(fd, SOL_SOCKET, SO_KEEPALIVE,
-			       (const char *)&optval, optlen) < 0)
+			       (const char *)&optval, optlen) < 0) {
+			int error = LWS_ERRNO;
+			lwsl_err("setsockopt SO_KEEPALIVE 1 failed with error %d\n", error);
 			return 1;
+		}
 
 		alive.onoff = TRUE;
 		alive.keepalivetime = vhost->ka_time * 1000;
 		alive.keepaliveinterval = vhost->ka_interval * 1000;
 
 		if (WSAIoctl(fd, SIO_KEEPALIVE_VALS, &alive, sizeof(alive),
-			     NULL, 0, &dwBytesRet, NULL, NULL))
+			     NULL, 0, &dwBytesRet, NULL, NULL)) {
+			int error = LWS_ERRNO;
+			lwsl_err("WSAIoctl SIO_KEEPALIVE_VALS 1 %lu %lu failed with error %d\n", alive.keepalivetime, alive.keepaliveinterval, error);
 			return 1;
+		}
 	}
 
 	/* Disable Nagle */
@@ -84,21 +119,26 @@ lws_plat_set_socket_options(struct lws_vhost *vhost, lws_sockfd_type fd,
 #ifndef _WIN32_WCE
 	tcp_proto = getprotobyname("TCP");
 	if (!tcp_proto) {
-		lwsl_err("getprotobyname() failed with error %d\n", LWS_ERRNO);
-		return 1;
-	}
-	protonbr = tcp_proto->p_proto;
+		int error = LWS_ERRNO;
+		lwsl_warn("getprotobyname(\"TCP\") failed with error, falling back to 6 %d\n", error);
+		protonbr = 6;  /* IPPROTO_TCP */
+	} else
+		protonbr = tcp_proto->p_proto;
 #else
 	protonbr = 6;
 #endif
 
-	setsockopt(fd, protonbr, TCP_NODELAY, (const char *)&optval, optlen);
+	if (setsockopt(fd, protonbr, TCP_NODELAY, (const char *)&optval, optlen) ) {
+		int error = LWS_ERRNO;
+		lwsl_warn("setsockopt TCP_NODELAY 1 failed with error %d\n", error);
+	}
+
 
 	return lws_plat_set_nonblocking(fd);
 }
 
 
-LWS_EXTERN int
+int
 lws_interface_to_sa(int ipv6,
 		const char *ifname, struct sockaddr_in *addr, size_t addrlen)
 {
@@ -291,3 +331,46 @@ lws_plat_inet_pton(int af, const char *src, void *dst)
 	lws_free(buffer);
 	return ok ? 1 : -1;
 }
+
+int
+lws_plat_ifname_to_hwaddr(int fd, const char *ifname, uint8_t *hwaddr, int len)
+{
+	lwsl_err("%s: UNIMPLEMENTED on this platform\n", __func__);
+
+	return -1;
+}
+
+int
+lws_plat_rawudp_broadcast(uint8_t *p, const uint8_t *canned, int canned_len,
+			  int n, int fd, const char *iface)
+{
+	lwsl_err("%s: UNIMPLEMENTED on this platform\n", __func__);
+
+	return -1;
+}
+
+int
+lws_plat_if_up(const char *ifname, int fd, int up)
+{
+	lwsl_err("%s: UNIMPLEMENTED on this platform\n", __func__);
+
+	return -1;
+}
+
+int
+lws_plat_BINDTODEVICE(lws_sockfd_type fd, const char *ifname)
+{
+	lwsl_err("%s: UNIMPLEMENTED on this platform\n", __func__);
+
+	return -1;
+}
+
+int
+lws_plat_ifconfig_ip(const char *ifname, int fd, uint8_t *ip, uint8_t *mask_ip,
+			uint8_t *gateway_ip)
+{
+	lwsl_err("%s: UNIMPLEMENTED on this platform\n", __func__);
+
+	return -1;
+}
+

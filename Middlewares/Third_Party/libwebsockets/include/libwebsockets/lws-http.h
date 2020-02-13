@@ -1,24 +1,25 @@
 /*
  * libwebsockets - small server side websockets and web server implementation
  *
- * Copyright (C) 2010-2018 Andy Green <andy@warmcat.com>
+ * Copyright (C) 2010 - 2019 Andy Green <andy@warmcat.com>
  *
- *  This library is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU Lesser General Public
- *  License as published by the Free Software Foundation:
- *  version 2.1 of the License.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- *  This library is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *  Lesser General Public License for more details.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
- *  You should have received a copy of the GNU Lesser General Public
- *  License along with this library; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- *  MA  02110-1301  USA
- *
- * included from libwebsockets.h
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
  */
 
 /* minimal space for typical headers and CSP stuff */
@@ -336,6 +337,19 @@ struct lws_token_limits {
 	unsigned short token_limit[WSI_TOKEN_COUNT]; /**< max chars for this token */
 };
 
+enum lws_h2_settings {
+	H2SET_HEADER_TABLE_SIZE = 1,
+	H2SET_ENABLE_PUSH,
+	H2SET_MAX_CONCURRENT_STREAMS,
+	H2SET_INITIAL_WINDOW_SIZE,
+	H2SET_MAX_FRAME_SIZE,
+	H2SET_MAX_HEADER_LIST_SIZE,
+	H2SET_RESERVED7,
+	H2SET_ENABLE_CONNECT_PROTOCOL, /* defined in mcmanus-httpbis-h2-ws-02 */
+
+	H2SET_COUNT /* always last */
+};
+
 /**
  * lws_token_to_string() - returns a textual representation of a hdr token index
  *
@@ -606,6 +620,34 @@ lws_add_http_common_headers(struct lws *wsi, unsigned int code,
 			    const char *content_type, lws_filepos_t content_len,
 			    unsigned char **p, unsigned char *end);
 
+enum {
+	LWSHUMETH_GET,
+	LWSHUMETH_POST,
+	LWSHUMETH_OPTIONS,
+	LWSHUMETH_PUT,
+	LWSHUMETH_PATCH,
+	LWSHUMETH_DELETE,
+	LWSHUMETH_CONNECT,
+	LWSHUMETH_HEAD,
+	LWSHUMETH_COLON_PATH,
+};
+
+/**
+ * lws_http_get_uri_and_method() - Get information on method and url
+ *
+ * \param wsi: the connection to get information on
+ * \param puri_ptr: points to pointer to set to url
+ * \param puri_len: points to int to set to uri length
+ *
+ * Returns -1 or method index as one of the LWSHUMETH_ constants
+ *
+ * If returns method, *puri_ptr is set to the method's URI string and *puri_len
+ * to its length
+ */
+
+LWS_VISIBLE LWS_EXTERN int LWS_WARN_UNUSED_RESULT
+lws_http_get_uri_and_method(struct lws *wsi, char **puri_ptr, int *puri_len);
+
 ///@}
 
 /*! \defgroup urlendec Urlencode and Urldecode
@@ -719,6 +761,24 @@ LWS_VISIBLE LWS_EXTERN int
 lws_http_mark_sse(struct lws *wsi);
 
 /**
+ * lws_h2_client_stream_long_poll_rxonly() - h2 stream to immortal read-only
+ *
+ * \param wsi: h2 stream client wsi
+ *
+ * Send END_STREAM-flagged zero-length DATA frame to set client stream wsi into
+ * half-closed (local) and remote into half-closed (remote).  Set the client
+ * stream wsi to be immortal (not subject to timeouts).
+ *
+ * Used if the remote server supports immortal long poll to put the stream into
+ * a read-only state where it can wait as long as needed for rx.
+ *
+ * Returns 0 if the process (which happens asynchronously) started or non-zero
+ * if it wasn't an h2 stream.
+ */
+LWS_VISIBLE LWS_EXTERN int
+lws_h2_client_stream_long_poll_rxonly(struct lws *wsi);
+
+/**
  * lws_http_compression_apply() - apply an http compression transform
  *
  * \param wsi: the wsi to apply the compression transform to
@@ -743,8 +803,64 @@ lws_http_mark_sse(struct lws *wsi);
  * LWS_WITH_HTTP_STREAM_COMPRESSION set, then a NOP is provided for this api,
  * allowing user code to build either way and use compression if available.
  */
-LWS_VISIBLE int
+LWS_VISIBLE LWS_EXTERN int
 lws_http_compression_apply(struct lws *wsi, const char *name,
 			   unsigned char **p, unsigned char *end, char decomp);
+
+/**
+ * lws_http_is_redirected_to_get() - true if redirected to GET
+ *
+ * \param wsi: the wsi to check
+ *
+ * Check if the wsi is currently in GET mode, after, eg, doing a POST and
+ * receiving a 303.
+ */
+LWS_VISIBLE LWS_EXTERN int
+lws_http_is_redirected_to_get(struct lws *wsi);
+
+/**
+ * lws_h2_update_peer_txcredit() - manually update stream peer tx credit
+ *
+ * \param wsi: the h2 child stream whose peer credit to change
+ * \param sid: the stream ID, or LWS_H2_STREAM_SID for the wsi stream ID
+ * \param bump: signed change to confer upon peer tx credit for sid
+ *
+ * In conjunction with LCCSCF_H2_MANUAL_RXFLOW flag, allows the user code to
+ * selectively starve the remote peer of the ability to send us data on a client
+ * connection.
+ *
+ * Normally lws sends an initial window size for the peer to send to it of 0,
+ * but during the header phase it sends a WINDOW_UPDATE to increase the amount
+ * available.  LCCSCF_H2_MANUAL_RXFLOW restricts this initial increase in tx
+ * credit for the stream, before it has been asked to send us anything, to the
+ * amount specified in the client info .manual_initial_tx_credit member, and
+ * this api can be called to send the other side permission to send us up to
+ * \p bump additional bytes.
+ *
+ * The nwsi tx credit is updated automatically for exactly what was sent to us
+ * on a stream with LCCSCF_H2_MANUAL_RXFLOW flag, but the stream's own tx credit
+ * must be handled manually by user code via this api.
+ *
+ * Returns 0 for success or nonzero for failure.
+ */
+#define LWS_H2_STREAM_SID -1
+LWS_VISIBLE LWS_EXTERN int
+lws_h2_update_peer_txcredit(struct lws *wsi, int sid, int bump);
+
+
+/**
+ * lws_h2_get_peer_txcredit_estimate() - return peer tx credit estimate
+ *
+ * \param wsi: the h2 child stream whose peer credit estimate to return
+ *
+ * Returns the estimated amount of tx credit at the peer, in other words the
+ * number of bytes the peer is authorized to send to us.
+ *
+ * It's an 'estimate' because we don't know how much is already in flight
+ * towards us and actually already used.
+ */
+LWS_VISIBLE LWS_EXTERN int
+lws_h2_get_peer_txcredit_estimate(struct lws *wsi);
+
 ///@}
 

@@ -1,3 +1,4 @@
+project(lws-minimal-ws-server-threadpool)
 cmake_minimum_required(VERSION 2.8)
 include(CheckIncludeFile)
 include(CheckCSourceCompiles)
@@ -77,7 +78,7 @@ ENDMACRO()
 set(requirements 1)
 require_pthreads(requirements)
 require_lws_config(LWS_ROLE_WS 1 requirements)
-require_lws_config(LWS_WITHOUT_SERVER 0 requirements)
+require_lws_config(LWS_WITH_SERVER 1 requirements)
 require_lws_config(LWS_WITH_THREADPOOL 1 requirements)
 
 if (requirements)

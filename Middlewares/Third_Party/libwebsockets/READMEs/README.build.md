@@ -1,6 +1,15 @@
 Notes about building lws
 ========================
 
+You can download and install lws using the [vcpkg](https://github.com/Microsoft/vcpkg/) dependency manager:
+```
+git clone https://github.com/microsoft/vcpkg.git
+cd vcpkg
+./bootstrap-vcpkg.sh
+./vcpkg integrate install
+vcpkg install libwebsockets
+```
+The lws port in vcpkg is kept up to date by Microsoft team members and community contributors. If the version is out of date, please [create an issue or pull request](https://github.com/Microsoft/vcpkg/) on the vcpkg repository.
 
 @section cm Introduction to CMake
 
@@ -366,6 +375,21 @@ this to work.
 ```
 
 **NOTE**: On windows use the .lib file extension for `LWS_CYASSL_LIBRARIES` instead.
+
+@section gzip Selecting GZIP or MINIZ
+
+By default lws supports gzip when compression is needed.  But you can tell it to use
+MINIZ instead by using `-DLWS_WITH_MINIZ=1`.
+
+For native build cmake will try to find an existing libminiz.so or .a and build
+against that and the found includes automatically.
+
+For cross-build or building against local miniz, you need the following kind of
+cmake to tell it where to get miniz
+
+```
+cmake .. -DLWS_WITH_MINIZ=1 -DLWS_WITH_ZIP_FOPS=1 -DMINIZ_INCLUDE_DIRS="/projects/miniz;/projects/miniz/build" -DMINIZ_LIBRARIES=/projects/miniz/build/libminiz.so.2.1.0  
+```
 
 @section esp32 Building for ESP32
 

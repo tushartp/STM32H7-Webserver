@@ -1,29 +1,29 @@
 /*
- * libwebsockets - JSON Web Encryption support
+ * libwebsockets - small server side websockets and web server implementation
  *
- * Copyright (C) 2018 Andy Green <andy@warmcat.com>
+ * Copyright (C) 2010 - 2019 Andy Green <andy@warmcat.com>
  *
- *  This library is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU Lesser General Public
- *  License as published by the Free Software Foundation:
- *  version 2.1 of the License.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- *  This library is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *  Lesser General Public License for more details.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
- *  You should have received a copy of the GNU Lesser General Public
- *  License along with this library; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- *  MA  02110-1301  USA
- *
- *
- * JWE code related to ecdh-es + Concat KDF and aes kw
- *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
  */
-#include "core/private.h"
-#include "jose/jwe/private.h"
+
+#include "private-lib-core.h"
+#include "private-lib-jose-jwe.h"
 
 /*
  * From RFC7518 JWA
@@ -293,7 +293,8 @@ lws_jwe_encrypt_ecdh(struct lws_jwe *jwe, char *temp, int *temp_len,
 
 		/* generate the actual CEK in cek */
 
-		if (lws_get_random(jwe->jws.context, cek, enc_hlen) != enc_hlen) {
+		if (lws_get_random(jwe->jws.context, cek, enc_hlen) !=
+							(size_t)enc_hlen) {
 			lwsl_err("Problem getting random\n");
 			goto bail;
 		}
@@ -334,9 +335,9 @@ lws_jwe_encrypt_ecdh(struct lws_jwe *jwe, char *temp, int *temp_len,
 
 	/* rewrite the protected JOSE header to have the epk pieces */
 
-	jwe->jws.map.buf[LJWE_JOSE] = temp + (ot - *temp_len);
+	jwe->jws.map.buf[LJWE_JOSE] = temp;
 
-	m = n = lws_snprintf(temp + (ot - *temp_len), *temp_len,
+	m = n = lws_snprintf(temp, *temp_len,
 			     "{\"alg\":\"%s\", \"enc\":\"%s\", \"epk\":",
 			     jwe->jose.alg->alg, jwe->jose.enc_alg->alg);
 	*temp_len -= n;

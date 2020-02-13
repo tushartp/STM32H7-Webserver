@@ -1,25 +1,28 @@
 /*
  * libwebsockets - small server side websockets and web server implementation
  *
- * Copyright (C) 2010-2018 Andy Green <andy@warmcat.com>
+ * Copyright (C) 2010 - 2019 Andy Green <andy@warmcat.com>
  *
- *  This library is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU Lesser General Public
- *  License as published by the Free Software Foundation:
- *  version 2.1 of the License.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- *  This library is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *  Lesser General Public License for more details.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
- *  You should have received a copy of the GNU Lesser General Public
- *  License along with this library; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- *  MA  02110-1301  USA
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
  */
 
-#include <core/private.h>
+#include <private-lib-core.h>
 
 #define LWS_CPYAPP(ptr, str) { strcpy(ptr, str); ptr += strlen(str); }
 
@@ -268,7 +271,8 @@ lws_process_ws_upgrade2(struct lws *wsi)
 	    !lws_pvo_get_str((void *)pvos->options, "basic-auth",
 			     &ws_prot_basic_auth)) {
 		lwsl_info("%s: ws upgrade requires basic auth\n", __func__);
-		switch(lws_check_basic_auth(wsi, ws_prot_basic_auth)) {
+		switch (lws_check_basic_auth(wsi, ws_prot_basic_auth, LWSAUTHM_DEFAULT
+						/* no callback based auth here */)) {
 		case LCBA_CONTINUE:
 			break;
 		case LCBA_FAILED_AUTH:
@@ -348,6 +352,15 @@ lws_process_ws_upgrade2(struct lws *wsi)
 			lws_role_transition(wsi,
 					    LWSIFR_SERVER | LWSIFR_P_ENCAP_H2,
 					    LRS_ESTABLISHED, &role_ops_ws);
+
+			/*
+			 * There should be no validity checking since we
+			 * are encapsulated in something else with its own
+			 * validity checking
+			 */
+
+			__lws_sul_insert(&pt->pt_sul_owner, &wsi->sul_validity,
+					 LWS_SET_TIMER_USEC_CANCEL);
 		} else
 #endif
 		{
@@ -365,17 +378,20 @@ lws_process_ws_upgrade2(struct lws *wsi)
 
 #if defined(LWS_WITH_ACCESS_LOG)
 	{
-		char *uptr = NULL, combo[128];
-		int l, meth = lws_http_get_uri_and_method(wsi, &uptr, &l);
+		char *uptr = "unknown method", combo[128], dotstar[64];
+		int l = 14, meth = lws_http_get_uri_and_method(wsi, &uptr, &l);
 
 		if (wsi->h2_stream_carries_ws)
 			wsi->http.request_version = HTTP_VERSION_2;
 
 		wsi->http.access_log.response = 101;
 
-		l = lws_snprintf(combo, sizeof(combo), "%.*s (%s)", l, uptr,
+		lws_strnncpy(dotstar, uptr, l, sizeof(dotstar));
+		l = lws_snprintf(combo, sizeof(combo), "%s (%s)", dotstar,
 				 wsi->protocol->name);
 
+		if (meth < 0)
+			meth = 0;
 		lws_prepare_access_log_info(wsi, combo, l, meth);
 		lws_access_log(wsi);
 	}
@@ -394,6 +410,7 @@ lws_process_ws_upgrade(struct lws *wsi)
 	char buf[128], name[64];
 	struct lws_tokenize ts;
 	lws_tokenize_elem e;
+	int n;
 
 	if (!wsi->protocol)
 		lwsl_err("NULL protocol at lws_read\n");
@@ -406,23 +423,23 @@ lws_process_ws_upgrade(struct lws *wsi)
 	 */
 
 #if defined(LWS_WITH_HTTP2)
-	if (!wsi->http2_substream) {
+	if (!wsi->mux_substream) {
 #endif
 
 		lws_tokenize_init(&ts, buf, LWS_TOKENIZE_F_COMMA_SEP_LIST |
 					    LWS_TOKENIZE_F_DOT_NONTERM |
 					    LWS_TOKENIZE_F_RFC7230_DELIMS |
 					    LWS_TOKENIZE_F_MINUS_NONTERM);
-		ts.len = lws_hdr_copy(wsi, buf, sizeof(buf) - 1,
-				      WSI_TOKEN_CONNECTION);
-		if (ts.len <= 0)
+		n = lws_hdr_copy(wsi, buf, sizeof(buf) - 1, WSI_TOKEN_CONNECTION);
+		if (n <= 0)
 			goto bad_conn_format;
+		ts.len = n;
 
 		do {
 			e = lws_tokenize(&ts);
 			switch (e) {
 			case LWS_TOKZE_TOKEN:
-				if (!strcasecmp(ts.token, "upgrade"))
+				if (!strncasecmp(ts.token, "upgrade", ts.token_len))
 					e = LWS_TOKZE_ENDED;
 				break;
 
@@ -451,7 +468,9 @@ lws_process_ws_upgrade(struct lws *wsi)
 		meth = lws_http_get_uri_and_method(wsi, &uri_ptr, &uri_len);
 		hit = lws_find_mount(wsi, uri_ptr, uri_len);
 
-		if (hit && (meth == 0 || meth == 8) &&
+		if (hit && (meth == LWSHUMETH_GET ||
+			    meth == LWSHUMETH_CONNECT ||
+			    meth == LWSHUMETH_COLON_PATH) &&
 		    (hit->origin_protocol == LWSMPRO_HTTPS ||
 		     hit->origin_protocol == LWSMPRO_HTTP))
 			/*
@@ -478,11 +497,12 @@ lws_process_ws_upgrade(struct lws *wsi)
 				    LWS_TOKENIZE_F_MINUS_NONTERM |
 				    LWS_TOKENIZE_F_DOT_NONTERM |
 				    LWS_TOKENIZE_F_RFC7230_DELIMS);
-	ts.len = lws_hdr_copy(wsi, buf, sizeof(buf) - 1, WSI_TOKEN_PROTOCOL);
-	if (ts.len < 0) {
+	n = lws_hdr_copy(wsi, buf, sizeof(buf) - 1, WSI_TOKEN_PROTOCOL);
+	if (n < 0) {
 		lwsl_err("%s: protocol list too long\n", __func__);
 		return 1;
 	}
+	ts.len = n;
 	if (!ts.len) {
 		int n = wsi->vhost->default_protocol_index;
 		/*
@@ -783,13 +803,12 @@ lws_ws_frame_rest_is_payload(struct lws *wsi, uint8_t **buf, size_t len)
 	n = lws_ext_cb_active(wsi, LWS_EXT_CB_PAYLOAD_RX, &pmdrx, 0);
 	lwsl_info("%s: ext says %d / ebuf_out.len %d\n", __func__,  n,
 			pmdrx.eb_out.len);
-#endif
+
 	/*
 	 * ebuf may be pointing somewhere completely different now,
 	 * it's the output
 	 */
 
-#if !defined(LWS_WITHOUT_EXTENSIONS)
 	if (n < 0) {
 		/*
 		 * we may rely on this to get RX, just drop connection
@@ -799,9 +818,7 @@ lws_ws_frame_rest_is_payload(struct lws *wsi, uint8_t **buf, size_t len)
 
 		return -1;
 	}
-#endif
 
-#if !defined(LWS_WITHOUT_EXTENSIONS)
 	/*
 	 * if we had an rx fragment right at the last compressed byte of the
 	 * message, we can get a zero length inflated output, where no prior
@@ -829,12 +846,14 @@ lws_ws_frame_rest_is_payload(struct lws *wsi, uint8_t **buf, size_t len)
 
 		return avail;
 	}
-#endif
 
-	if (!pmdrx.eb_out.len)
+	/*
+	 * If doing permessage-deflate, above was the only way to get a zero
+	 * length receive.  Otherwise we're more willing.
+	 */
+	if (wsi->ws->count_act_ext && !pmdrx.eb_out.len)
 		return avail;
 
-#if !defined(LWS_WITHOUT_EXTENSIONS)
 	if (n == PMDR_HAS_PENDING)
 		/* extension had more... main loop will come back */
 		lws_add_wsi_to_draining_ext_list(wsi);
@@ -842,7 +861,8 @@ lws_ws_frame_rest_is_payload(struct lws *wsi, uint8_t **buf, size_t len)
 		lws_remove_wsi_from_draining_ext_list(wsi);
 #endif
 
-	if (wsi->ws->check_utf8 && !wsi->ws->defeat_check_utf8) {
+	if (pmdrx.eb_out.len &&
+	    wsi->ws->check_utf8 && !wsi->ws->defeat_check_utf8) {
 		if (lws_check_utf8(&wsi->ws->utf8,
 				   pmdrx.eb_out.token,
 				   pmdrx.eb_out.len)) {

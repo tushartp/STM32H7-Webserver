@@ -1,25 +1,28 @@
 /*
- * libwebsockets - Stateful urldecode for POST
+ * libwebsockets - small server side websockets and web server implementation
  *
- * Copyright (C) 2010-2019 Andy Green <andy@warmcat.com>
+ * Copyright (C) 2010 - 2019 Andy Green <andy@warmcat.com>
  *
- *  This library is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU Lesser General Public
- *  License as published by the Free Software Foundation:
- *  version 2.1 of the License.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- *  This library is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *  Lesser General Public License for more details.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
- *  You should have received a copy of the GNU Lesser General Public
- *  License along with this library; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- *  MA  02110-1301  USA
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
  */
 
-#include "core/private.h"
+#include "private-lib-core.h"
 
 #define LWS_MAX_ELEM_NAME 32
 
@@ -118,7 +121,8 @@ lws_urldecode_s_create(struct lws_spa *spa, struct lws *wsi, char *out,
 	/* multipart/form-data;
 	 * boundary=----WebKitFormBoundarycc7YgAPEIHvgE9Bf */
 
-		if (!strncmp(buf, "multipart/form-data", 19)) {
+		if (!strncmp(buf, "multipart/form-data", 19) ||
+		    !strncmp(buf, "multipart/related", 17)) {
 			s->multipart_form_data = 1;
 			s->state = MT_LOOK_BOUND_IN;
 			s->mp = 2;
@@ -130,12 +134,11 @@ lws_urldecode_s_create(struct lws_spa *spa, struct lws *wsi, char *out,
 				s->mime_boundary[m++] = '-';
 				s->mime_boundary[m++] = '-';
 				while (m < (int)sizeof(s->mime_boundary) - 1 &&
-				       *p && *p != ' ')
+				       *p && *p != ' ' && *p != ';')
 					s->mime_boundary[m++] = *p++;
-
 				s->mime_boundary[m] = '\0';
 
-				lwsl_info("boundary '%s'\n", s->mime_boundary);
+				lwsl_notice("boundary '%s'\n", s->mime_boundary);
 			}
 		}
 	}
@@ -148,7 +151,7 @@ lws_urldecode_s_process(struct lws_urldecode_stateful *s, const char *in,
 			int len)
 {
 	int n, m, hit = 0;
-	char c, was_end = 0;
+	char c;
 
 	while (len--) {
 		if (s->pos == s->out_len - s->mp - 1) {
@@ -156,9 +159,9 @@ lws_urldecode_s_process(struct lws_urldecode_stateful *s, const char *in,
 				      LWS_UFS_CONTENT))
 				return -1;
 
-			was_end = s->pos;
 			s->pos = 0;
 		}
+
 		switch (s->state) {
 
 		/* states for url arg style */
@@ -183,7 +186,8 @@ lws_urldecode_s_process(struct lws_urldecode_stateful *s, const char *in,
 				continue;
 			}
 			if (s->pos >= (int)sizeof(s->name) - 1) {
-				lwsl_notice("Name too long\n");
+				lwsl_hexdump_notice(s->name, s->pos);
+				lwsl_notice("Name too long...\n");
 				return -1;
 			}
 			s->name[s->pos++] = *in++;
@@ -244,11 +248,10 @@ retry_as_first:
 					s->mp = 0;
 					s->state = MT_IGNORE1;
 
-					if (s->pos || was_end)
-						if (s->output(s->data, s->name,
+					if (s->output(s->data, s->name,
 						      &s->out, s->pos,
 						      LWS_UFS_FINAL_CONTENT))
-							return -1;
+						return -1;
 
 					s->pos = 0;
 
@@ -352,7 +355,8 @@ retry_as_first:
 			if (!s->temp[0]) {
 				if (s->mp < (int)sizeof(s->content_disp) - 1)
 					s->content_disp[s->mp++] = *in;
-				s->content_disp[s->mp] = '\0';
+				if (s->mp < (int)sizeof(s->content_disp))
+					s->content_disp[s->mp] = '\0';
 				goto done;
 			}
 
@@ -564,7 +568,7 @@ lws_spa_create_via_info(struct lws *wsi, const lws_spa_create_info_t *i)
 			goto bail5;
 	}
 
-	lwsl_info("%s: Created SPA %p\n", __func__, spa);
+	lwsl_notice("%s: Created SPA %p\n", __func__, spa);
 
 	return spa;
 

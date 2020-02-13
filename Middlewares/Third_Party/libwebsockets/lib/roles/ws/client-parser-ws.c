@@ -1,25 +1,28 @@
 /*
  * libwebsockets - small server side websockets and web server implementation
  *
- * Copyright (C) 2010-2018 Andy Green <andy@warmcat.com>
+ * Copyright (C) 2010 - 2019 Andy Green <andy@warmcat.com>
  *
- *  This library is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU Lesser General Public
- *  License as published by the Free Software Foundation:
- *  version 2.1 of the License.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- *  This library is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *  Lesser General Public License for more details.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
- *  You should have received a copy of the GNU Lesser General Public
- *  License along with this library; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- *  MA  02110-1301  USA
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
  */
 
-#include "core/private.h"
+#include "private-lib-core.h"
 
 /*
  * parsers.c: lws_ws_rx_sm() needs to be roughly kept in
@@ -401,7 +404,7 @@ spill:
 			}
 
 			lwsl_parser("client sees server close len = %d\n",
-						 wsi->ws->rx_ubuf_head);
+						 (int)wsi->ws->rx_ubuf_head);
 			if (wsi->ws->rx_ubuf_head >= 2) {
 				close_code = (pp[0] << 8) | pp[1];
 				if (close_code < 1000 ||
@@ -443,7 +446,7 @@ spill:
 
 		case LWSWSOPC_PING:
 			lwsl_info("received %d byte ping, sending pong\n",
-				  wsi->ws->rx_ubuf_head);
+				  (int)wsi->ws->rx_ubuf_head);
 
 			/* he set a close reason on this guy, ignore PING */
 			if (wsi->ws->close_in_ping_buffer_len)
@@ -484,12 +487,7 @@ ping_drop:
 			lwsl_hexdump(&wsi->ws->rx_ubuf[LWS_PRE],
 				     wsi->ws->rx_ubuf_head);
 
-			if (wsi->pending_timeout ==
-				       PENDING_TIMEOUT_WS_PONG_CHECK_GET_PONG) {
-				lwsl_info("%p: received expected PONG\n", wsi);
-				lws_set_timeout(wsi, NO_PENDING_TIMEOUT, 0);
-			}
-
+			lws_validity_confirmed(wsi);
 			/* issue it */
 			callback_action = LWS_CALLBACK_CLIENT_RECEIVE_PONG;
 			break;
@@ -532,7 +530,7 @@ ping_drop:
 		pmdrx.eb_out = pmdrx.eb_in;
 
 		lwsl_debug("%s: starting disbursal of %d deframed rx\n",
-				__func__, wsi->ws->rx_ubuf_head);
+				__func__, (int)wsi->ws->rx_ubuf_head);
 
 #if !defined(LWS_WITHOUT_EXTENSIONS)
 drain_extension:
@@ -661,8 +659,8 @@ utf8_fail:
 			wsi->ws->first_fragment = 0;
 
 			lwsl_debug("%s: bulk ws rx: inp used %d, output %d\n",
-				    __func__, wsi->ws->rx_ubuf_head,
-				    pmdrx.eb_out.len);
+				    __func__, (int)wsi->ws->rx_ubuf_head,
+				    (int)pmdrx.eb_out.len);
 
 			/* if user code wants to close, let caller know */
 			if (m)

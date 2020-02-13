@@ -1,26 +1,29 @@
 /*
- * libwebsockets - lws_struct JSON serialization helpers
+ * libwebsockets - small server side websockets and web server implementation
  *
- * Copyright (C) 2019 Andy Green <andy@warmcat.com>
+ * Copyright (C) 2010 - 2019 Andy Green <andy@warmcat.com>
  *
- *  This library is free software; you can redistribute it and/or
- *  modify it under the terms of the GNU Lesser General Public
- *  License as published by the Free Software Foundation:
- *  version 2.1 of the License.
+ * Permission is hereby granted, free of charge, to any person obtaining a copy
+ * of this software and associated documentation files (the "Software"), to
+ * deal in the Software without restriction, including without limitation the
+ * rights to use, copy, modify, merge, publish, distribute, sublicense, and/or
+ * sell copies of the Software, and to permit persons to whom the Software is
+ * furnished to do so, subject to the following conditions:
  *
- *  This library is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
- *  Lesser General Public License for more details.
+ * The above copyright notice and this permission notice shall be included in
+ * all copies or substantial portions of the Software.
  *
- *  You should have received a copy of the GNU Lesser General Public
- *  License along with this library; if not, write to the Free Software
- *  Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston,
- *  MA  02110-1301  USA
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+ * FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+ * AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+ * LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS
+ * IN THE SOFTWARE.
  */
 
 #include <libwebsockets.h>
-#include <core/private.h>
+#include <private-lib-core.h>
 
 #include <assert.h>
 
@@ -29,7 +32,7 @@ lws_struct_schema_only_lejp_cb(struct lejp_ctx *ctx, char reason)
 {
 	lws_struct_args_t *a = (lws_struct_args_t *)ctx->user;
 	const lws_struct_map_t *map = a->map_st[ctx->pst_sp];
-	int n = a->map_entries_st[ctx->pst_sp];
+	size_t n = a->map_entries_st[ctx->pst_sp];
 	lejp_callback cb = map->lejp_cb;
 
 	if (reason != LEJPCB_VAL_STR_END || ctx->path_match != 1)
@@ -89,8 +92,8 @@ lws_struct_default_lejp_cb(struct lejp_ctx *ctx, char reason)
 	lws_struct_args_t *args = (lws_struct_args_t *)ctx->user;
 	const lws_struct_map_t *map, *pmap = NULL;
 	uint8_t *ch;
+	size_t n;
 	char *u;
-	int n;
 
 	if (reason == LEJPCB_ARRAY_END) {
 		lejp_parser_pop(ctx);
@@ -100,7 +103,6 @@ lws_struct_default_lejp_cb(struct lejp_ctx *ctx, char reason)
 
 	if (reason == LEJPCB_ARRAY_START) {
 		map = &args->map_st[ctx->pst_sp][ctx->path_match - 1];
-		n = args->map_entries_st[ctx->pst_sp];
 
 		if (map->type == LSMT_LIST)
 			lws_struct_lejp_push(ctx, args, map, NULL);
