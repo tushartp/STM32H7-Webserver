@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<cdtprojectproperties>
+<section name="org.eclipse.cdt.internal.ui.wizards.settingswizards.IncludePaths">
+<language name="s,S">
+
+</language>
+<language name="C Source File">
+<includepath>../../Inc</includepath>
+<includepath>../../Inc/common/include</includepath>
+<includepath>../../Middlewares/Third_Party/LwIP/src/include</includepath>
+<includepath>../../Middlewares/Third_Party/LwIP/system</includepath>
+<includepath>../../Middlewares/Third_Party/mbedTLS/include</includepath>
+<includepath>../../Drivers/STM32H7xx_HAL_Driver/Inc</includepath>
+<includepath>../../Drivers/STM32H7xx_HAL_Driver/Inc/Legacy</includepath>
+<includepath>../../Middlewares/Third_Party/FatFs/src</includepath>
+<includepath>../../Middlewares/Third_Party/FreeRTOS/Source/include</includepath>
+<includepath>../../Middlewares/Third_Party/FreeRTOS/Source/CMSIS_RTOS</includepath>
+<includepath>../../Middlewares/Third_Party/FreeRTOS/Source/portable/GCC/ARM_CM7/r0p1</includepath>
+<includepath>../../Drivers/BSP/STM32H743I_EVAL</includepath>
+<includepath>../../Drivers/BSP/Components/lan8742</includepath>
+<includepath>../../Drivers/BSP/Components/mfxstm32l152</includepath>
+<includepath>../../Drivers/BSP/Components/Common</includepath>
+<includepath>../../Middlewares/Third_Party/LwIP/src/include/netif/ppp</includepath>
+<includepath>../../Drivers/CMSIS/Device/ST/STM32H7xx/Include</includepath>
+<includepath>../../Middlewares/Third_Party/LwIP/src/include/lwip</includepath>
+<includepath>../../Middlewares/Third_Party/LwIP/src/include/lwip/apps</includepath>
+<includepath>../../Middlewares/Third_Party/LwIP/src/include/lwip/priv</includepath>
+<includepath>../../Middlewares/Third_Party/LwIP/src/include/lwip/prot</includepath>
+<includepath>../../Middlewares/Third_Party/LwIP/src/include/netif</includepath>
+<includepath>../../Middlewares/Third_Party/LwIP/src/include/compat/posix</includepath>
+<includepath>../../Middlewares/Third_Party/LwIP/src/include/compat/posix/sys</includepath>
+<includepath>../../Middlewares/Third_Party/LwIP/src/include/compat/posix/arpa</includepath>
+<includepath>../../Middlewares/Third_Party/LwIP/src/include/compat/posix/net</includepath>
+<includepath>../../Middlewares/Third_Party/LwIP/src/include/compat/stdc</includepath>
+<includepath>../../Middlewares/Third_Party/LwIP/system/arch</includepath>
+<includepath>../../Middlewares/Third_Party/libwebsockets/include</includepath>
+<includepath>../../Middlewares/Third_Party/libwebsockets/lib</includepath>
+<includepath>../../Middlewares/Third_Party/libwebsockets/lib/tls/mbedtls/wrapper/include</includepath>
+<includepath>../../Middlewares/Third_Party/libwebsockets/lib/tls/mbedtls/wrapper/include/platform</includepath>
+<includepath>../../Middlewares/Third_Party/libwebsockets/lib/tls/mbedtls/wrapper/include/internal</includepath>
+<includepath>../../Middlewares/Third_Party/libwebsockets/lib/tls/mbedtls/wrapper/include/openssl</includepath>
+<includepath>../../Middlewares/Third_Party/mbedTLS/include/mbedtls</includepath>
+<includepath>../../Drivers/CMSIS/Include</includepath>
+
+</language>
+<language name="Object File">
+
+</language>
+</section>
+<section name="org.eclipse.cdt.internal.ui.wizards.settingswizards.Macros">
+<language name="s,S">
+
+</language>
+<language name="C Source File">
+<macro>
+<name>MBEDTLS_CONFIG_FILE</name><value>&lt;mbedtls_config.h&gt;</value>
+</macro>
+<macro>
+<name>__weak</name><value>__attribute__((weak))</value>
+</macro>
+<macro>
+<name>__packed</name><value>__attribute__((__packed__))</value>
+</macro>
+<macro>
+<name>USE_HAL_DRIVER</name><value/>
+</macro>
+<macro>
+<name>STM32H753xx</name><value/>
+</macro>
+<macro>
+<name>USE_IOEXPANDER</name><value/>
+</macro>
+
+</language>
+<language name="Object File">
+
+</language>
+</section>
+</cdtprojectproperties>
