@@ -3018,7 +3018,7 @@ lws_server_get_canonical_hostname(struct lws_context *context,
 	if (lws_check_opt(info->options,
 			LWS_SERVER_OPTION_SKIP_SERVER_CANONICAL_NAME))
 		return;
-#if !defined(LWS_PLAT_FREERTOS)
+#if !defined(LWS_PLAT_FREERTOS) || 1
 	/* find canonical hostname */
 	gethostname((char *)context->canonical_hostname,
 		    sizeof(context->canonical_hostname) - 1);

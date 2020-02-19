@@ -155,7 +155,7 @@ lws_hex_to_byte_array(const char *h, uint8_t *dest, int max)
 
 #if !defined(LWS_PLAT_OPTEE)
 
-#if defined(LWS_WITH_FILE_OPS)
+#if defined(LWS_WITH_FILE_OPS) && !defined(LWS_AMAZON_RTOS)
 int lws_open(const char *__file, int __oflag, ...)
 {
 	va_list ap;

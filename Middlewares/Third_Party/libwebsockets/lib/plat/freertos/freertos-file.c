@@ -23,20 +23,20 @@
  */
 
 #include "private-lib-core.h"
-
+#include "fatfs_wrapper.h"
 int lws_plat_apply_FD_CLOEXEC(int n)
 {
 	return 0;
 }
 
 
-lws_fop_fd_t IRAM_ATTR
+lws_fop_fd_t
 _lws_plat_file_open(const struct lws_plat_file_ops *fops, const char *filename,
 		    const char *vpath, lws_fop_flags_t *flags)
 {
 	struct stat stat_buf;
 	lws_fop_fd_t fop_fd;
-	int ret = open(filename, *flags, 0664);
+	int ret = fat_open(filename, *flags, 0664);
 
 	if (ret < 0)
 		return NULL;
@@ -58,12 +58,12 @@ _lws_plat_file_open(const struct lws_plat_file_ops *fops, const char *filename,
 	return fop_fd;
 
 bail:
-	close(ret);
+	fat_close(ret);
 
 	return NULL;
 }
 
-int IRAM_ATTR
+int
 _lws_plat_file_close(lws_fop_fd_t *fops_fd)
 {
 	int fd = (*fops_fd)->fd;
@@ -71,22 +71,22 @@ _lws_plat_file_close(lws_fop_fd_t *fops_fd)
 	lws_free(*fops_fd);
 	*fops_fd = NULL;
 
-	return close(fd);
+	return fat_close(fd);
 }
 
-lws_fileofs_t IRAM_ATTR
+lws_fileofs_t
 _lws_plat_file_seek_cur(lws_fop_fd_t fops_fd, lws_fileofs_t offset)
 {
 	return lseek(fops_fd->fd, offset, SEEK_CUR);
 }
 
-int IRAM_ATTR
+int
 _lws_plat_file_read(lws_fop_fd_t fops_fd, lws_filepos_t *amount,
 		    uint8_t *buf, lws_filepos_t len)
 {
 	long n;
 
-	n = read(fops_fd->fd, buf, len);
+	n = fat_read(fops_fd->fd, buf, len);
 	if (n == -1) {
 		*amount = 0;
 		return -1;
@@ -97,13 +97,13 @@ _lws_plat_file_read(lws_fop_fd_t fops_fd, lws_filepos_t *amount,
 	return 0;
 }
 
-int IRAM_ATTR
+int
 _lws_plat_file_write(lws_fop_fd_t fops_fd, lws_filepos_t *amount,
 		     uint8_t *buf, lws_filepos_t len)
 {
 	long n;
 
-	n = write(fops_fd->fd, buf, len);
+	n = fat_write(fops_fd->fd, buf, len);
 	if (n == -1) {
 		*amount = 0;
 		return -1;

@@ -216,6 +216,10 @@
  /* MEMP_NUM_SYS_TIMEOUT: the number of simulateously active
     timeouts. */
  #define MEMP_NUM_SYS_TIMEOUT    10
+/*
+ * MEMP_NUM_NETCONN: the number of struct netconns.
+ */
+ #define MEMP_NUM_NETCONN		 8
 
 
  /* ---------- Pbuf options ---------- */
@@ -274,7 +278,7 @@
 
 
  /* ---------- Statistics options ---------- */
- #define LWIP_STATS 0
+ #define LWIP_STATS 1
  #define LWIP_PROVIDE_ERRNO
  /* ---------- link callback options ---------- */
  /* LWIP_NETIF_LINK_CALLBACK==1: Support a callback function from an interface
@@ -329,7 +333,7 @@
    #define CHECKSUM_GEN_ICMP               1
  #endif
 
-
+#define LWIP_NETIF_HOSTNAME             1
  /*
     ----------------------------------------------
     ---------- Sequential layer options ----------

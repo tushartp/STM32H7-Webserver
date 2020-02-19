@@ -78,7 +78,7 @@ lws_plat_check_connection_error(struct lws *wsi)
 int
 lws_plat_set_nonblocking(lws_sockfd_type fd)
 {
-	return fcntl(fd, F_SETFL, O_NONBLOCK) < 0;
+	return lwip_fcntl(fd, F_SETFL, 0x01/*O_NONBLOCK*/) < 0;
 }
 
 int
@@ -221,7 +221,7 @@ lws_plat_inet_ntop(int af, const void *src, char *dst, int cnt)
 int
 lws_plat_inet_pton(int af, const char *src, void *dst)
 {
-	return 1; //  inet_pton(af, src, dst);
+	return inet_pton(af, src, dst);
 }
 
 int

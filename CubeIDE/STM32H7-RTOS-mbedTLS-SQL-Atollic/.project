@@ -869,11 +869,6 @@
 			<locationURI>virtual:/virtual</locationURI>
 		</link>
 		<link>
-			<name>Middlewares/libwebsockets/abstract.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/libwebsockets/lib/abstract/abstract.c</locationURI>
-		</link>
-		<link>
 			<name>Middlewares/libwebsockets/adopt.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/libwebsockets/lib/core-net/adopt.c</locationURI>
@@ -909,44 +904,54 @@
 			<locationURI>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/libwebsockets/lib/core/context.c</locationURI>
 		</link>
 		<link>
+			<name>Middlewares/libwebsockets/core-net</name>
+			<type>2</type>
+			<locationURI>virtual:/virtual</locationURI>
+		</link>
+		<link>
 			<name>Middlewares/libwebsockets/dummy-callback.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/libwebsockets/lib/core-net/dummy-callback.c</locationURI>
 		</link>
 		<link>
-			<name>Middlewares/libwebsockets/esp32-fds.c</name>
+			<name>Middlewares/libwebsockets/freertos-fds.c</name>
 			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/libwebsockets/lib/plat/stm32/esp32-fds.c</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/libwebsockets/lib/plat/freertos/freertos-fds.c</locationURI>
 		</link>
 		<link>
-			<name>Middlewares/libwebsockets/esp32-file.c</name>
+			<name>Middlewares/libwebsockets/freertos-file.c</name>
 			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/libwebsockets/lib/plat/stm32/esp32-file.c</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/libwebsockets/lib/plat/freertos/freertos-file.c</locationURI>
 		</link>
 		<link>
-			<name>Middlewares/libwebsockets/esp32-init.c</name>
+			<name>Middlewares/libwebsockets/freertos-init.c</name>
 			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/libwebsockets/lib/plat/stm32/esp32-init.c</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/libwebsockets/lib/plat/freertos/freertos-init.c</locationURI>
 		</link>
 		<link>
-			<name>Middlewares/libwebsockets/esp32-misc.c</name>
+			<name>Middlewares/libwebsockets/freertos-misc.c</name>
 			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/libwebsockets/lib/plat/stm32/esp32-misc.c</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/libwebsockets/lib/plat/freertos/freertos-misc.c</locationURI>
 		</link>
 		<link>
-			<name>Middlewares/libwebsockets/esp32-pipe.c</name>
+			<name>Middlewares/libwebsockets/freertos-pipe.c</name>
 			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/libwebsockets/lib/plat/stm32/esp32-pipe.c</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/libwebsockets/lib/plat/freertos/freertos-pipe.c</locationURI>
 		</link>
 		<link>
-			<name>Middlewares/libwebsockets/esp32-service.c</name>
+			<name>Middlewares/libwebsockets/freertos-resolv.c</name>
 			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/libwebsockets/lib/plat/stm32/esp32-service.c</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/libwebsockets/lib/plat/freertos/freertos-resolv.c</locationURI>
 		</link>
 		<link>
-			<name>Middlewares/libwebsockets/esp32-sockets.c</name>
+			<name>Middlewares/libwebsockets/freertos-service.c</name>
 			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/libwebsockets/lib/plat/stm32/esp32-sockets.c</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/libwebsockets/lib/plat/freertos/freertos-service.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/libwebsockets/freertos-sockets.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/libwebsockets/lib/plat/freertos/freertos-sockets.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/libwebsockets/header.c</name>
@@ -989,16 +994,6 @@
 			<locationURI>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/libwebsockets/lib/roles/http/server/lws-spa.c</locationURI>
 		</link>
 		<link>
-			<name>Middlewares/libwebsockets/lws-struct-lejp.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/libwebsockets/lib/misc/lws-struct-lejp.c</locationURI>
-		</link>
-		<link>
-			<name>Middlewares/libwebsockets/lws_dll.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/libwebsockets/lib/core/lws_dll.c</locationURI>
-		</link>
-		<link>
 			<name>Middlewares/libwebsockets/lws_dll2.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/libwebsockets/lib/core/lws_dll2.c</locationURI>
@@ -1012,6 +1007,21 @@
 			<name>Middlewares/libwebsockets/mbedtls-server.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/libwebsockets/lib/tls/mbedtls/mbedtls-server.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/libwebsockets/mbedtls-ssl.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/libwebsockets/lib/tls/mbedtls/mbedtls-ssl.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/libwebsockets/mbedtls-tls.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/libwebsockets/lib/tls/mbedtls/mbedtls-tls.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/libwebsockets/mbedtls-x509.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/libwebsockets/lib/tls/mbedtls/mbedtls-x509.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/libwebsockets/network.c</name>
@@ -1061,7 +1071,7 @@
 		<link>
 			<name>Middlewares/libwebsockets/parsers.c</name>
 			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/libwebsockets/lib/roles/http/server/parsers.c</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/libwebsockets/lib/roles/http/parsers.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/libwebsockets/poll.c</name>
@@ -1074,14 +1084,14 @@
 			<locationURI>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/libwebsockets/lib/core-net/pollfd.c</locationURI>
 		</link>
 		<link>
-			<name>Middlewares/libwebsockets/raw-skt.c</name>
+			<name>Middlewares/libwebsockets/ranges.c</name>
 			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/libwebsockets/lib/abstract/transports/raw-skt.c</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/libwebsockets/lib/roles/http/server/ranges.c</locationURI>
 		</link>
 		<link>
-			<name>Middlewares/libwebsockets/server-core-net.c</name>
+			<name>Middlewares/libwebsockets/sequencer.c</name>
 			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/libwebsockets/lib/core-net/server-core-net.c</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/libwebsockets/lib/core-net/sequencer.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/libwebsockets/server-ws.c</name>
@@ -1102,11 +1112,6 @@
 			<name>Middlewares/libwebsockets/sha-1.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/libwebsockets/lib/misc/sha-1.c</locationURI>
-		</link>
-		<link>
-			<name>Middlewares/libwebsockets/ssl.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/libwebsockets/lib/tls/mbedtls/ssl.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/libwebsockets/ssl_cert.c</name>
@@ -1154,9 +1159,9 @@
 			<locationURI>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/libwebsockets/lib/core-net/stats.c</locationURI>
 		</link>
 		<link>
-			<name>Middlewares/libwebsockets/tls-mbedtls.c</name>
+			<name>Middlewares/libwebsockets/system.c</name>
 			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/libwebsockets/lib/tls/mbedtls/tls-mbedtls.c</locationURI>
+			<locationURI>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/libwebsockets/lib/system/system.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/libwebsockets/tls-network.c</name>
@@ -1192,11 +1197,6 @@
 			<name>Middlewares/libwebsockets/wsi.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/libwebsockets/lib/core-net/wsi.c</locationURI>
-		</link>
-		<link>
-			<name>Middlewares/libwebsockets/x509.c</name>
-			<type>1</type>
-			<locationURI>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/libwebsockets/lib/tls/mbedtls/x509.c</locationURI>
 		</link>
 		<link>
 			<name>Middlewares/mbedTLS/aes.c</name>
@@ -1617,6 +1617,26 @@
 			<name>Middlewares/SQLite/src/sqlite3.c</name>
 			<type>1</type>
 			<locationURI>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/SQLite/src/sqlite3.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/libwebsockets/core-net/server.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/libwebsockets/lib/core-net/server.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/libwebsockets/core-net/sorted-usec-list.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/libwebsockets/lib/core-net/sorted-usec-list.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/libwebsockets/core-net/state.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/libwebsockets/lib/core-net/state.c</locationURI>
+		</link>
+		<link>
+			<name>Middlewares/libwebsockets/core-net/stats.c</name>
+			<type>1</type>
+			<locationURI>PARENT-2-PROJECT_LOC/Middlewares/Third_Party/libwebsockets/lib/core-net/stats.c</locationURI>
 		</link>
 	</linkedResources>
 </projectDescription>

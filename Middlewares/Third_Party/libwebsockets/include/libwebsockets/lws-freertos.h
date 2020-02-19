@@ -27,35 +27,14 @@
 typedef int lws_sockfd_type;
 typedef int lws_filefd_type;
 
-/*
- * Later lwip (at least 2.1.12) already defines these in its own headers
- * protected by the same test as used here... if POLLIN / POLLOUT already exist
- * then assume no need to declare those and struct pollfd.
- *
- * Older lwip needs these declarations done here.
- */
 
-#if !defined(POLLIN) && !defined(POLLOUT)
-
-struct pollfd {
-	lws_sockfd_type fd; /**< fd related to */
-	short events; /**< which POLL... events to respond to */
-	short revents; /**< which POLL... events occurred */
-};
-#define POLLIN		0x0001
-#define POLLPRI		0x0002
-#define POLLOUT		0x0004
-#define POLLERR		0x0008
-#define POLLHUP		0x0010
-#define POLLNVAL	0x0020
-
-#endif
 
 #if defined(LWS_AMAZON_RTOS)
 #include <FreeRTOS.h>
 #include <event_groups.h>
 #include <string.h>
 #include "timers.h"
+#include <lwip/netdb.h>
 #include <lwip/sockets.h>
 #else /* LWS_AMAZON_RTOS */
 #include <freertos/FreeRTOS.h>

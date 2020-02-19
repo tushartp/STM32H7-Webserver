@@ -71,7 +71,33 @@
 									<listOptionValue builtIn="false" value="../../../Middlewares/Third_Party/LwIP/src/include/compat/stdc"/>
 									<listOptionValue builtIn="false" value="../../../Middlewares/Third_Party/LwIP/system/arch"/>
 									<listOptionValue builtIn="false" value="../../../Middlewares/Third_Party/libwebsockets/include"/>
+									<listOptionValue builtIn="false" value="../../../Middlewares/Third_Party/libwebsockets/include/libwebsockets/abstract"/>
 									<listOptionValue builtIn="false" value="../../../Middlewares/Third_Party/libwebsockets/lib"/>
+									<listOptionValue builtIn="false" value="../../../Middlewares/Third_Party/libwebsockets/lib/core"/>
+									<listOptionValue builtIn="false" value="../../../Middlewares/Third_Party/libwebsockets/lib/core-net"/>
+									<listOptionValue builtIn="false" value="../../../Middlewares/Third_Party/libwebsockets/lib/event-libs"/>
+									<listOptionValue builtIn="false" value="../../../Middlewares/Third_Party/libwebsockets/lib/event-libs/libuv"/>
+									<listOptionValue builtIn="false" value="../../../Middlewares/Third_Party/libwebsockets/lib/event-libs/poll"/>
+									<listOptionValue builtIn="false" value="../../../Middlewares/Third_Party/libwebsockets/lib/event-libs/libevent"/>
+									<listOptionValue builtIn="false" value="../../../Middlewares/Third_Party/libwebsockets/lib/event-libs/glib"/>
+									<listOptionValue builtIn="false" value="../../../Middlewares/Third_Party/libwebsockets/lib/event-libs/libev"/>
+									<listOptionValue builtIn="false" value="../../../Middlewares/Third_Party/libwebsockets/lib/jose"/>
+									<listOptionValue builtIn="false" value="../../../Middlewares/Third_Party/libwebsockets/lib/jose/jwe"/>
+									<listOptionValue builtIn="false" value="../../../Middlewares/Third_Party/libwebsockets/lib/jose/jws"/>
+									<listOptionValue builtIn="false" value="../../../Middlewares/Third_Party/libwebsockets/lib/misc"/>
+									<listOptionValue builtIn="false" value="../../../Middlewares/Third_Party/libwebsockets/lib/roles"/>
+									<listOptionValue builtIn="false" value="../../../Middlewares/Third_Party/libwebsockets/lib/roles/http"/>
+									<listOptionValue builtIn="false" value="../../../Middlewares/Third_Party/libwebsockets/lib/roles/http/compression"/>
+									<listOptionValue builtIn="false" value="../../../Middlewares/Third_Party/libwebsockets/lib/roles/h1"/>
+									<listOptionValue builtIn="false" value="../../../Middlewares/Third_Party/libwebsockets/lib/roles/h2"/>
+									<listOptionValue builtIn="false" value="../../../Middlewares/Third_Party/libwebsockets/lib/roles/ws"/>
+									<listOptionValue builtIn="false" value="../../../Middlewares/Third_Party/libwebsockets/lib/roles/cgi"/>
+									<listOptionValue builtIn="false" value="../../../Middlewares/Third_Party/libwebsockets/lib/roles/dbus"/>
+									<listOptionValue builtIn="false" value="../../../Middlewares/Third_Party/libwebsockets/lib/roles/raw-proxy"/>
+									<listOptionValue builtIn="false" value="../../../Middlewares/Third_Party/libwebsockets/lib/abstract"/>
+									<listOptionValue builtIn="false" value="../../../Middlewares/Third_Party/libwebsockets/lib/system/async-dns"/>
+									<listOptionValue builtIn="false" value="../../../Middlewares/Third_Party/libwebsockets/lib/plat/freertos"/>
+									<listOptionValue builtIn="false" value="../../../Middlewares/Third_Party/libwebsockets/lib/tls"/>
 									<listOptionValue builtIn="false" value="../../../Middlewares/Third_Party/libwebsockets/lib/tls/mbedtls/wrapper/include"/>
 									<listOptionValue builtIn="false" value="../../../Middlewares/Third_Party/libwebsockets/lib/tls/mbedtls/wrapper/include/platform"/>
 									<listOptionValue builtIn="false" value="../../../Middlewares/Third_Party/libwebsockets/lib/tls/mbedtls/wrapper/include/internal"/>
@@ -165,7 +191,7 @@
 					</folderInfo>
 					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.debug.1420817994.nofile" name="nofile" rcbsApplicability="disable" resourcePath="nofile" toolsToInvoke=""/>
 					<sourceEntries>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
+						<entry excluding="Middlewares/libwebsockets/freertos-resolv.c" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>
@@ -314,7 +340,7 @@
 					</folderInfo>
 					<fileInfo id="com.st.stm32cube.ide.mcu.gnu.managedbuild.config.exe.release.1358992312.nofile" name="nofile" rcbsApplicability="disable" resourcePath="nofile" toolsToInvoke=""/>
 					<sourceEntries>
-						<entry flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
+						<entry excluding="Middlewares/libwebsockets/freertos-resolv.c" flags="VALUE_WORKSPACE_PATH" kind="sourcePath" name=""/>
 					</sourceEntries>
 				</configuration>
 			</storageModule>

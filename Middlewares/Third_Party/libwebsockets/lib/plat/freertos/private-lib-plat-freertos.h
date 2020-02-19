@@ -24,22 +24,17 @@
  * Included from lib/private-lib-core.h if LWS_PLAT_FREERTOS
  */
 
-#define MSG_NOSIGNAL 0
-#define SOMAXCONN 3
+//#define MSG_NOSIGNAL 0
+#define SOMAXCONN 5
 
-#if defined(LWS_AMAZON_RTOS)
- int
- open(const char *path, int oflag, ...);
-#else
+
  #include <fcntl.h>
-#endif
-
  #include <strings.h>
  #include <unistd.h>
  #include <sys/stat.h>
  #include <sys/types.h>
  #include <sys/time.h>
- #include <netdb.h>
+ #include <lwip/netdb.h>
 
  #ifndef __cplusplus
   #include <errno.h>
@@ -59,7 +54,7 @@ gai_strerror(int);
  #include "FreeRTOS_IP.h"
 #endif
  #include "timers.h"
- #include <esp_attr.h>
+ //#include <esp_attr.h>
 #else
  #include "freertos/timers.h"
  #include <esp_attr.h>

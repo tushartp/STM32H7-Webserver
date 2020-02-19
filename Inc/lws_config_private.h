@@ -10,9 +10,6 @@
  * LWS_OPENSSL_SUPPORT needs to be set also for this to work. */
 /* #undef USE_CYASSL */
 
-/* Define to 1 if you have the `bzero' function. */
-/* #undef LWS_HAVE_BZERO */
-
 /* Define to 1 if you have the <dlfcn.h> header file. */
 /* #undef LWS_HAVE_DLFCN_H */
 
@@ -122,3 +119,5 @@
 /* #undef LWS_WITH_ZLIB */
 /* #undef LWS_HAS_PTHREAD_SETNAME_NP */
 
+/* Defined if you have the <inttypes.h> header file. */
+#define LWS_HAVE_INTTYPES_H

@@ -57,7 +57,7 @@
 #include "ethernetif.h"
 
 /* USER CODE BEGIN 0 */
-
+#include <string.h>
 /* USER CODE END 0 */
 /* Private function prototypes -----------------------------------------------*/
 static void ethernet_link_status_updated(struct netif *netif);
@@ -167,6 +167,17 @@ void DHCP_Thread(void const * argument)
 const char* get_current_ipaddress( void )
 {
 	return (ip4addr_ntoa(netif_ip4_addr(&gnetif)));
+}
+
+int gethostname(char *hostname, size_t len)
+{
+
+	if(len > strlen(netif_get_hostname(&gnetif)))
+		strncpy(hostname, netif_get_hostname(&gnetif), strlen(netif_get_hostname(&gnetif)));
+	else
+		strncpy(hostname, netif_get_hostname(&gnetif), len);
+
+	return 0;
 }
 /* USER CODE END 2 */
 

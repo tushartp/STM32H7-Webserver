@@ -22,7 +22,6 @@
 #include "cmsis_os.h"
 
 void minimal_http_server_tls (void const *argument);
-static int interrupted;
 
 static const struct lws_http_mount mount = {
 	/* .mount_next */		NULL,		/* linked-list "next" */
@@ -44,16 +43,12 @@ static const struct lws_http_mount mount = {
 	/* .basic_auth_login_file */	NULL,
 };
 
-void sigint_handler(int sig)
-{
-	interrupted = 1;
-}
 
 void minimal_http_server_tls (void const *argument)
 {
 	struct lws_context_creation_info info;
 	struct lws_context *context;
-	const char *p;
+	//const char *p;
 	int n = 0, logs = LLL_USER | LLL_ERR | LLL_WARN | LLL_NOTICE
 			/* for LLL_ verbosity above NOTICE to be built into lws,
 			 * lws must have been configured and built with
@@ -76,10 +71,10 @@ void minimal_http_server_tls (void const *argument)
 	info.error_document_404 = "/404.html";
 	info.options = LWS_SERVER_OPTION_DO_SSL_GLOBAL_INIT |
 		LWS_SERVER_OPTION_HTTP_HEADERS_SECURITY_BEST_PRACTICES_ENFORCE;
-	info.ssl_cert_filepath = "localhost-100y.cert";
-	info.ssl_private_key_filepath = "localhost-100y.key";
-	//info.ssl_cert_filepath = "1010987.cert";
-	//info.ssl_private_key_filepath = "1010987.key";
+	//info.ssl_cert_filepath = "localhost-100y.cert";
+	//info.ssl_private_key_filepath = "localhost-100y.key";
+	info.ssl_cert_filepath = "stm32-h753.cert";
+	info.ssl_private_key_filepath = "stm32-h753.key";
 
 	//if (lws_cmdline_option(argc, argv, "-h"))
 		//info.options |= LWS_SERVER_OPTION_VHOST_UPG_STRICT_HOST_CHECK;
@@ -90,8 +85,8 @@ void minimal_http_server_tls (void const *argument)
 		goto exit;
 	}
 
-	while (n >= 0 && !interrupted)
-		n = lws_service(context, 200);
+	while (n >= 0)
+		n = lws_service(context, 100);
 exit:
 	lws_context_destroy(context);
 

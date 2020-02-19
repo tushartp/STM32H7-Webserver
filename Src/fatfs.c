@@ -101,7 +101,7 @@ void MX_FATFS_Init(void)
 	FATFS_SDDiskInit(SDPath);
 	/* Create Storage Message Queue */
 	//osMessageQDef(osqueue, 10, uint16_t);
-	testdatabase();
+	//testdatabase();
 	//ConnectionEvent = osMessageCreate (osMessageQ(osqueue), NULL);
 
 

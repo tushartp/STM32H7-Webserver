@@ -37,11 +37,11 @@ lws_plat_pipe_create(struct lws *wsi)
 	 * socket to cancel the wait.
 	 */
 
-	fd[0] = socket(AF_INET, SOCK_DGRAM, 0);
+	fd[0] = lwip_socket(AF_INET, SOCK_DGRAM, 0);
 	if (fd[0] < 0)
 		goto bail;
 
-	fd[1] = socket(AF_INET, SOCK_DGRAM, 0);
+	fd[1] = lwip_socket(AF_INET, SOCK_DGRAM, 0);
 	if (fd[1] < 0)
 		goto bail;
 
@@ -55,7 +55,7 @@ lws_plat_pipe_create(struct lws *wsi)
 	si->sin_addr.s_addr = htonl(INADDR_LOOPBACK);
 	si->sin_port = htons(54321);
 
-	if (bind(fd[0], (const struct sockaddr *)si, sizeof(*si)) < 0)
+	if (lwip_bind(fd[0], (const struct sockaddr *)si, sizeof(*si)) < 0)
 		goto bail;
 
 	return 0;
@@ -87,7 +87,7 @@ lws_plat_pipe_signal(struct lws *wsi)
 	 * (on udp/raw netconn, doing a sendto/recv is currently possible).
 	 */
 
-	n = sendto(fd[1], &u, 1, 0, (struct sockaddr *)si, sizeof(*si));
+	n = lwip_sendto(fd[1], &u, 1, 0, (struct sockaddr *)si, sizeof(*si));
 
 	return n != 1;
 }
@@ -99,9 +99,9 @@ lws_plat_pipe_close(struct lws *wsi)
 	lws_sockfd_type *fd = pt->dummy_pipe_fds;
 
 	if (fd[0] && fd[0] != -1)
-		close(fd[0]);
+		lwip_close(fd[0]);
 	if (fd[1] && fd[1] != -1)
-		close(fd[1]);
+		lwip_close(fd[1]);
 
 	fd[0] = fd[1] = -1;
 }
